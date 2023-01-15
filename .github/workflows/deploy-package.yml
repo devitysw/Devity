@@ -21,16 +21,16 @@ jobs:
     - name: Auto versioning
       run: echo ::set-env name=VERSION::$(date +%Y%m%d)$(git log --format=%h -1)
 
-    - name: Switch to correct folder
-      run: cd Devity.${{ env.PROJECT_NAME }}/
-
     - name: Build and test
+      working-directory: Devity.${{ env.PROJECT_NAME }}
       run: | 
         dotnet build --configuration Release --no-restore
         dotnet test --configuration Release --no-build
       
     - name: Package
+      working-directory: Devity.${{ env.PROJECT_NAME }}
       run: dotnet pack --configuration Release --no-build --output nupkgs --version ${{ env.VERSION }}
 
     - name: Deploy
+      working-directory: Devity.${{ env.PROJECT_NAME }}
       run: nuget push nupkgs/*.nupkg -k ${{ env.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
