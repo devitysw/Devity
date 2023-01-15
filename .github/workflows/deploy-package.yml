@@ -22,7 +22,7 @@ jobs:
       run: echo ::set-env name=VERSION::$(date +%Y%m%d)$(git log --format=%h -1) >> $GITHUB_ENV
 
     - name: Switch folder
-      run: cd Devity.${{ env.PROJECT_NAME }}/
+      run: cd Devity.${{ inputs.PROJECT_NAME }}/
 
     - name: Build and test
       run: | 
@@ -33,4 +33,4 @@ jobs:
       run: dotnet pack --configuration Release --no-build --output nupkgs --version ${{ env.VERSION }}
 
     - name: Deploy
-      run: nuget push nupkgs/*.nupkg -k ${{ env.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
+      run: nuget push nupkgs/*.nupkg -k ${{ inputs.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
