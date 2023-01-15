@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - master
+  workflow_call:
+    inputs:
+      config-path:
+        required: true
+        type: string
 
 jobs:
   deploy:
