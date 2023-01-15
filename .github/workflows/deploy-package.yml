@@ -6,9 +6,12 @@ on:
       - master
   workflow_call:
     inputs:
-      config-path:
+      PROJECT_NAME:
         required: true
         type: string
+    secrets:
+      NUGET_API_KEY:
+        required: true
 
 jobs:
   deploy:
@@ -38,4 +41,4 @@ jobs:
       run: dotnet pack --configuration Release --no-build --output nupkgs --version ${{ env.VERSION }}
 
     - name: Deploy
-      run: nuget push nupkgs/*.nupkg -k ${{ inputs.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
+      run: nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
