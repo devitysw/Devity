@@ -18,6 +18,9 @@ jobs:
       with:
         dotnet-version: 7.0.x
 
+    - name: Switch to correct folder
+      run: cd Devity.${{ env.PROJECT_NAME }}
+
     - name: Auto versioning
       run: echo ::set-env name=VERSION::$(date +%Y%m%d)$(git log --format=%h -1)
 

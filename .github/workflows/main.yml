@@ -6,11 +6,22 @@ on:
       - master
 
 jobs:
-  deploy:
+  deploy-extensions:
     runs-on: ubuntu-latest
     steps:
-    - name: Use reusable workflow
+    - name: Deploy Devity.Extensions
       uses: devitysw/Devity/deploy-package.yml@master
       with:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+        PROJECT_NAME: 'Extensions'
+
+  deploy-blazor:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy Devity.Blazor
+      uses: devitysw/Devity/deploy-package.yml@master
+      with:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+        PROJECT_NAME: 'Blazor'
