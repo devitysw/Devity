@@ -27,20 +27,20 @@ jobs:
         dotnet-version: 7.0.x
 
     - name: Auto versioning
-      run: echo ::set-env name=VERSION::$(date +%Y%m%d)$(git log --format=%h -1) >> $GITHUB_ENV
-
-    - name: Switch directory
-      run: cd Devity.${{ inputs.PROJECT_NAME }}
+      run: echo "VERSION=$(date +%Y%m%d)$(git log --format=%h -1)" >> $GITHUB_ENV
 
     - name: Build and test
+      working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
       run: | 
         dotnet build --configuration Release
         dotnet test --configuration Release --no-build
       
     - name: Package
+      working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
       run: dotnet pack --configuration Release --no-build --output nupkgs --version ${{ env.VERSION }}
 
     - name: Deploy
+      working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
       run: |
         ls
         dotnet nuget push nupkgs/Devity.${{ inputs.PROJECT_NAME }}.${{ env.VERSION }}.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
