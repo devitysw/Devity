@@ -5,10 +5,6 @@ on:
     branches:
       - master
   workflow_call:
-    inputs:
-      PROJECT_NAME:
-        required: true
-        type: string
     secrets:
       NUGET_API_KEY:
         required: true
@@ -29,9 +25,6 @@ jobs:
     - name: Auto versioning
       run: echo ::set-env name=VERSION::$(date +%Y%m%d)$(git log --format=%h -1) >> $GITHUB_ENV
 
-    - name: Switch folder
-      run: cd Devity.${{ inputs.PROJECT_NAME }}/
-
     - name: Build and test
       run: | 
         dotnet build --configuration Release
@@ -41,4 +34,4 @@ jobs:
       run: dotnet pack --configuration Release --no-build --output nupkgs --version ${{ env.VERSION }}
 
     - name: Deploy
-      run: nuget push nupkgs/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
+      run: dotnet nuget push nupkgs/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
