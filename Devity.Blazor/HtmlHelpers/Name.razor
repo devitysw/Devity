@@ -1,0 +1,32 @@
+﻿@namespace Devity.Blazor
+@typeparam TValue
+@using System.Reflection
+@using System.Data
+@using System.Linq.Expressions
+@using Devity.Extensions
+
+<label>@_displayName</label>
+
+@code {
+    [Parameter]
+    public Expression<Func<TValue>>? For { get; set; }
+
+    private string _displayName = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (For is null)
+            throw new MissingFieldException("Missing expression for Name.");
+
+        if (For.Body is not MemberExpression memberExpression)
+            throw new InvalidExpressionException("Invalid expression for Name.");
+
+        if(memberExpression.Member is not PropertyInfo propertyInfo)
+            throw new InvalidExpressionException("Invalid property provided for Name.");
+
+        _displayName = ClassFacade.GetPropertyHumanName(propertyInfo);
+    }
+
+}
