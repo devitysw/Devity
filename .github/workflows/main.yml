@@ -6,7 +6,16 @@ on:
       - master
 
 jobs:
-  deploy:
+  deploy-blazor:
     uses: devitysw/Devity/.github/workflows/deploy-package.yml@master
+    with:
+      PROJECT_NAME: 'Blazor'
+    secrets:
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+
+  deploy-extensions:
+    uses: devitysw/Devity/.github/workflows/deploy-package.yml@master
+    with:
+      PROJECT_NAME: 'Extensions'
     secrets:
       NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
