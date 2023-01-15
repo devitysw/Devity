@@ -19,7 +19,7 @@ jobs:
         dotnet-version: 7.0.x
 
     - name: Auto versioning
-      run: echo ::set-env name=VERSION::$(date +%Y%m%d)$(git log --format=%h -1)
+      run: echo ::set-env name=VERSION::$(date +%Y%m%d)$(git log --format=%h -1) >> $GITHUB_ENV
 
     - name: Build and test
       run: | 

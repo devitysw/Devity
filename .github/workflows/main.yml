@@ -8,8 +8,6 @@ on:
 jobs:
   deploy-extensions:
     runs-on: ubuntu-latest
-    env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     steps:
     - name: Deploy Devity.Extensions
       uses: devitysw/Devity/deploy-package.yml@master
@@ -19,8 +17,6 @@ jobs:
 
   deploy-blazor:
     runs-on: ubuntu-latest
-    env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     steps:
     - name: Deploy Devity.Blazor
       uses: devitysw/Devity/deploy-package.yml@master
