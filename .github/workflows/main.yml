@@ -1,4 +1,4 @@
-name: Deploy NuGet Package
+name: Publish NuGet Package
 
 on:
   push:
@@ -6,15 +6,15 @@ on:
       - master
 
 jobs:
-  deploy-blazor:
-    uses: devitysw/Devity/.github/workflows/deploy-package.yml@master
+  publish-blazor:
+    uses: devitysw/Devity/.github/workflows/publish-package.yml@master
     with:
       PROJECT_NAME: 'Blazor'
     secrets:
       NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
-  deploy-extensions:
-    uses: devitysw/Devity/.github/workflows/deploy-package.yml@master
+  publish-extensions:
+    uses: devitysw/Devity/.github/workflows/publish-package.yml@master
     with:
       PROJECT_NAME: 'Extensions'
     secrets:

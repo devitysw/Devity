@@ -1,4 +1,4 @@
-name: Deploy NuGet Package
+name: Publish NuGet Package
 
 on:
   push:
@@ -14,7 +14,7 @@ on:
         required: true
 
 jobs:
-  deploy:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
@@ -36,7 +36,7 @@ jobs:
       working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
       run: dotnet pack --configuration Release --no-build
 
-    - name: Deploy
+    - name: Publish
       working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
       run: |
         cd bin
