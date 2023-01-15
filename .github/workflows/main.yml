@@ -6,18 +6,6 @@ on:
       - master
 
 jobs:
-  initialize:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-        
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: 7.0.x
-
   deploy-blazor:
     uses: devitysw/Devity/.github/workflows/deploy-package.yml@master
     needs: initialize
