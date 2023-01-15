@@ -1,9 +1,6 @@
 name: Publish NuGet Package
 
 on:
-  push:
-    branches:
-      - master
   workflow_call:
     inputs:
       PROJECT_NAME:
