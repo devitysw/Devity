@@ -1,0 +1,33 @@
+name: Deploy NuGet Package
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 7.0.x
+
+    - name: Auto versioning
+      run: echo ::set-env name=VERSION::$(date +%Y%m%d)$(git log --format=%h -1)
+
+    - name: Build and test
+      run: | 
+        dotnet build --configuration Release --no-restore
+        dotnet test --configuration Release --no-build
+      
+    - name: Package
+      run: dotnet pack --configuration Release --no-build --output nupkgs --version ${{ env.VERSION }}
+
+    - name: Deploy
+      run: nuget push nupkgs/*.nupkg -k ${{ env.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
