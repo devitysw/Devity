@@ -30,8 +30,8 @@ jobs:
       run: echo "VERSION=$(date +%Y%m%d)$(git log --format=%h -1)" >> $GITHUB_ENV
 
     - name: Build and test
-      working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
       run: | 
+        cd Devity.${{ inputs.PROJECT_NAME }}
         dotnet build --configuration Release
         dotnet test --configuration Release --no-build
       
