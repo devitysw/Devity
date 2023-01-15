@@ -34,7 +34,7 @@ jobs:
 
     - name: Build and test
       run: | 
-        dotnet build --configuration Release --no-restore
+        dotnet build --configuration Release
         dotnet test --configuration Release --no-build
       
     - name: Package
