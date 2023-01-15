@@ -5,7 +5,9 @@ VisualStudioVersion = 17.2.32427.441
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Devity.Extensions", "Devity.Extensions\Devity.Extensions.csproj", "{3600384C-306F-4FC2-8E80-7A271F9C4D06}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Devity.Blazor", "Devity.Blazor\Devity.Blazor.csproj", "{259C0973-EC16-41B8-833F-312674EC620D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Devity.Blazor", "Devity.Blazor\Devity.Blazor.csproj", "{259C0973-EC16-41B8-833F-312674EC620D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Devity.Tests", "Devity.Tests\Devity.Tests.csproj", "{EB920986-6BA3-48C0-B556-B2168B638E2B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{259C0973-EC16-41B8-833F-312674EC620D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{259C0973-EC16-41B8-833F-312674EC620D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{259C0973-EC16-41B8-833F-312674EC620D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB920986-6BA3-48C0-B556-B2168B638E2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB920986-6BA3-48C0-B556-B2168B638E2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB920986-6BA3-48C0-B556-B2168B638E2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB920986-6BA3-48C0-B556-B2168B638E2B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
