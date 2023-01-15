@@ -6,10 +6,20 @@ on:
       - master
 
 jobs:
-  deploy:
+  deploy-blazor:
     runs-on: ubuntu-latest
     steps:
-    - name: Deploy
+    - name: Deploy Blazor
       uses: devitysw/Devity/.github/workflows/deploy-package.yml@master
       with:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        PROJECT_NAME: 'Blazor'
+
+  deploy-extensions:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy Extensions
+      uses: devitysw/Devity/.github/workflows/deploy-package.yml@master
+      with:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        PROJECT_NAME: 'Extensions'
