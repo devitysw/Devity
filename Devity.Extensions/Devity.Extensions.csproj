@@ -7,6 +7,8 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>A package with various Extension functions to be used with C#'s default classes.</Description>
     <PackageTags>extensions;string;class;object;property;helpers;devity</PackageTags>
+    <PackageVersion>$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm"))</PackageVersion>
+    <AssemblyVersion>$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm"))</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
