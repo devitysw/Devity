@@ -39,4 +39,6 @@ jobs:
     - name: Deploy
       working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
       run: |
+        cd bin
+        ls
         dotnet nuget push */*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
