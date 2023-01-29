@@ -1,4 +1,4 @@
-namespace Devity.Tests.Extensions;
+namespace Devity.Tests.Extensions.Helpers;
 
 public class ClassFacadeTest
 {
@@ -16,7 +16,7 @@ public class ClassFacadeTest
     {
     }
 
-    private TestObject _object = new TestObject(); 
+    private TestObject _object = new TestObject();
 
     [Test]
     public void GetCleanTypeTest()

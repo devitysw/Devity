@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
-namespace Devity.Extensions
+namespace Devity.Extensions.Helpers
 {
     public static class ClassFacade
     {
