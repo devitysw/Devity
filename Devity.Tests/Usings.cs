@@ -1,3 +1,6 @@
+global using Bunit;
+
+global using Devity.Blazor;
 global using Devity.Extensions;
 global using Devity.Extensions.Helpers;
 
