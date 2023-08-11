@@ -19,3 +19,10 @@ jobs:
       PROJECT_NAME: 'Extensions'
     secrets:
       NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+
+  publish-mailing:
+    uses: devitysw/Devity/.github/workflows/publish-package.yml@master
+    with:
+      PROJECT_NAME: 'Mailing'
+    secrets:
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
