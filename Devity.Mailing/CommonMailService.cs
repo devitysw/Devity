@@ -38,8 +38,19 @@ public abstract class CommonMailService
 
         foreach (var loop in emailData.LoopMap)
         {
+            if (!body.Contains(loop.Key))
+                throw new FormatException($"{TITLE_KEY} was missing in the e-mail template.");
+
+            if (loop.Key.Length == 0)
+                throw new FormatException($"The loop key was empty.");
+
             var startPoint = body.IndexOf(loop.Key);
-            var endPoint = body.LastIndexOf(loop.Key) + loop.Key.Length;
+            var lastKey = body.LastIndexOf(loop.Key);
+
+            if (startPoint == lastKey)
+                throw new FormatException($"The loop key was only found once in the e-mail template.");
+
+            var endPoint = lastKey + loop.Key.Length;
 
             string partToReplace = body[startPoint..endPoint];
 
@@ -51,7 +62,14 @@ public abstract class CommonMailService
 
                 foreach (var key in loop.Value.KeyMap)
                 {
-                    target = target.Replace(key.Key, key.Value.Compile().DynamicInvoke(obj).ToString());
+                    try
+                    {
+                        target = target.Replace(key.Key, key.Value.Compile().DynamicInvoke(obj).ToString());
+                    }
+                    catch(Exception ex)
+                    {
+                        throw new Exception($"Failed to replace value of key {key.Key}. Underlying exception: {ex}");
+                    }
                 }
 
                 body = body.Insert(startPoint, target);
