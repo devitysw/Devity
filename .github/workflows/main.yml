@@ -7,21 +7,21 @@ on:
 
 jobs:
   publish-blazor:
-    uses: devitysw/Devity/.github/workflows/publish-package.yml@master
+    uses: devitysw/Devity/.github/workflows/publish-package.yml@main
     with:
       PROJECT_NAME: 'Blazor'
     secrets:
       NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
   publish-extensions:
-    uses: devitysw/Devity/.github/workflows/publish-package.yml@master
+    uses: devitysw/Devity/.github/workflows/publish-package.yml@main
     with:
       PROJECT_NAME: 'Extensions'
     secrets:
       NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
   publish-mailing:
-    uses: devitysw/Devity/.github/workflows/publish-package.yml@master
+    uses: devitysw/Devity/.github/workflows/publish-package.yml@main
     with:
       PROJECT_NAME: 'Mailing'
     secrets:
