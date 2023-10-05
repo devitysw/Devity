@@ -7,6 +7,8 @@ using System.Text;
 using System.Reflection.Emit;
 using Microsoft.Extensions.Configuration;
 using Devity.Payout.DTOs;
+using Microsoft.Extensions.Logging;
+using Devity.Payout.Helpers;
 
 public class PayoutService
 {
@@ -20,13 +22,15 @@ public class PayoutService
     private const int MAX_ATTEMPTS = 2;
 
     private readonly IConfiguration _configuration;
+    private readonly ILogger<PayoutService> _logger;
 
     private PayoutAuthorizationResponseDTO? _lastAuthorization;
     private DateTime? _lastAuthorizationAt;
 
-    public PayoutService(IConfiguration configuration)
+    public PayoutService(IConfiguration configuration, ILogger<PayoutService> logger)
     {
         _configuration = configuration;
+        _logger = logger;
 
         var clientId = _configuration["Payout:ClientId"];
         var clientSecret = _configuration["Payout:ClientSecret"];
@@ -84,38 +88,13 @@ public class PayoutService
         return _lastAuthorization.Token;
     }
 
-    public async Task WithdrawAsync(int transactionId)
+    public async Task CreateCheckoutAsync(PayoutCheckoutDTO payoutCheckoutDTO)
     {
         var token = await GetTokenAsync()!;
 
-        using var scope = _serviceProvider.CreateScope();
-        var dbContextFactory = scope.ServiceProvider.GetService<IDbContextFactory<DataContext>>()!;
-        using var db = dbContextFactory.CreateDbContext();
-
-        var transaction = await db.Transactions
-            .Include(x => x.BankAccount)
-            .Include(x => x.Employee)
-            .ThenInclude(x => x!.Account)
-            .AsNoTracking()
-            .SingleAsync(x => x.Id.Equals(transactionId));
-
         using var httpClient = new HttpClient();
 
-        var data = new PayoutWithdrawDTO
-        {
-            Amount = Convert.ToInt64(transaction.Amount * 100),
-            Customer = new PayoutCustomerDTO
-            {
-                EmailAddress = transaction.Employee!.Account!.Email,
-                Firstname = transaction.Employee.Account.Firstname,
-                Lastname = transaction.Employee.Account.Surname
-            },
-            Descriptor = "EWA withdrawal",
-            ExternalId = transaction.Id.ToString(),
-            Iban = transaction.BankAccount!.Iban
-        };
-
-        data = SignatureHelper.PopulateSignature(data, _configuration["Payout:ClientSecret"]);
+        var data = payoutCheckoutDTO.PopulateSignature(_clientSecret);
 
         var jsonString = JsonSerializer.Serialize(data);
         var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
@@ -129,12 +108,12 @@ public class PayoutService
                 token
             );
 
-            response = await httpClient.PostAsync(_withdrawPath, content);
+            response = await httpClient.PostAsync(_checkoutPath, content);
 
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning(
-                    $"Failed to submit withdraw request on attempt {i + 1} out of {MAX_ATTEMPTS}: {response.StatusCode} {response.ReasonPhrase} {await response.Content.ReadAsStringAsync()}"
+                    $"Failed to create checkout on attempt {i + 1} out of {MAX_ATTEMPTS}: {response.StatusCode} {response.ReasonPhrase} {await response.Content.ReadAsStringAsync()}"
                 );
 
                 _lastAuthorization = null;
@@ -147,13 +126,8 @@ public class PayoutService
         response!.EnsureSuccessStatusCode();
 
         _logger.LogInformation(
-            $"Withdrawal of {transaction.Amount} EUR for user {transaction.Employee.Account.Email} sent successfully."
+            $"Withdrawal of {payoutCheckoutDTO.AmountInCents * 100} EUR for user {payoutCheckoutDTO.Customer.Firstname} {payoutCheckoutDTO.Customer.Lastname} [{payoutCheckoutDTO.Customer.EmailAddress}] sent successfully."
         );
-    }
-
-    public async Task CreateCheckoutAsync()
-    {
-        var token = await GetTokenAsync();
     }
 
     public async Task<PayoutBalanceResponseDTO[]> GetBalanceAsync()

@@ -5,7 +5,7 @@ namespace Devity.Payout.DTOs;
 public class PayoutCheckoutDTO
 {
     [JsonPropertyName("amount")]
-    public required double Amount { get; set; }
+    public required double AmountInCents { get; set; }
 
     [JsonPropertyName("currency")]
     public required string Currency { get; set; } = "EUR";
