@@ -88,7 +88,9 @@ public class PayoutService
         return _lastAuthorization.Token;
     }
 
-    public async Task CreateCheckoutAsync(PayoutCheckoutDTO payoutCheckoutDTO)
+    public async Task<PayoutCheckoutResponseDTO> CreateCheckoutAsync(
+        PayoutCheckoutDTO payoutCheckoutDTO
+    )
     {
         var token = await GetTokenAsync()!;
 
@@ -126,8 +128,10 @@ public class PayoutService
         response!.EnsureSuccessStatusCode();
 
         _logger.LogInformation(
-            $"Withdrawal of {payoutCheckoutDTO.AmountInCents * 100} EUR for user {payoutCheckoutDTO.Customer.Firstname} {payoutCheckoutDTO.Customer.Lastname} [{payoutCheckoutDTO.Customer.EmailAddress}] sent successfully."
+            $"Checkout of {payoutCheckoutDTO.AmountInCents / 100} EUR for user {payoutCheckoutDTO.Customer.Firstname} {payoutCheckoutDTO.Customer.Lastname} [{payoutCheckoutDTO.Customer.EmailAddress}] created successfully."
         );
+
+        return (await response.Content.ReadFromJsonAsync<PayoutCheckoutResponseDTO>())!;
     }
 
     public async Task<PayoutBalanceResponseDTO[]> GetBalanceAsync()

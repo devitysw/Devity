@@ -8,7 +8,7 @@ public class PayoutProductDTO
     public required string Name { get; set; }
 
     [JsonPropertyName("unit_price")]
-    public required int UnitPrice { get; set; }
+    public required int UnitPriceInCents { get; set; }
 
     [JsonPropertyName("quantity")]
     public required int Quantity { get; set; }

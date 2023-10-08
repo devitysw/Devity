@@ -5,8 +5,20 @@ namespace Devity.Payout.DTOs;
 public class PayoutPaymentDTO
 {
     [JsonPropertyName("failure_reason")]
-    public string? FailureReason { get; set; }
+    public required string FailureReason { get; set; }
 
     [JsonPropertyName("fee")]
-    public double? Fee { get; set; }
+    public required double FeeInCents { get; set; }
+
+    [JsonPropertyName("net")]
+    public required double NetInCents { get; set; }
+
+    [JsonPropertyName("object")]
+    public required double Object { get; set; }
+
+    [JsonPropertyName("payment_method")]
+    public required double PaymentMethod { get; set; }
+
+    [JsonPropertyName("status")]
+    public required double Status { get; set; }
 }

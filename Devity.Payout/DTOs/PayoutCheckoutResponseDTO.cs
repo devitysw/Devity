@@ -2,13 +2,16 @@
 
 namespace Devity.Payout.DTOs;
 
-public class PayoutCheckoutDTO
+public class PayoutCheckoutResponseDTO
 {
+    [JsonPropertyName("id")]
+    public required int PayoutId { get; set; }
+
     [JsonPropertyName("amount")]
     public required double AmountInCents { get; set; }
 
     [JsonPropertyName("currency")]
-    public string Currency { get; set; } = "EUR";
+    public required string Currency { get; set; }
 
     [JsonPropertyName("external_id")]
     public required string ExternalId { get; set; }
@@ -23,16 +26,22 @@ public class PayoutCheckoutDTO
     public required PayoutAddressDTO ShippingAddress { get; set; }
 
     [JsonPropertyName("signature")]
-    public string? Signature { get; set; }
+    public required string Signature { get; set; }
 
     [JsonPropertyName("nonce")]
-    public string? Nonce { get; set; }
+    public required string Nonce { get; set; }
 
     [JsonPropertyName("redirect_url")]
     public required string RedirectUrl { get; set; }
 
-    [JsonPropertyName("pisp_consent")]
-    public bool? PispConsent { get; set; }
+    [JsonPropertyName("checkout_url")]
+    public required string CheckoutUrl { get; set; }
+
+    [JsonPropertyName("object")]
+    public required string ObjectType { get; set; }
+
+    [JsonPropertyName("status")]
+    public required string Status { get; set; }
 
     [JsonPropertyName("idempotency_key")]
     public string? IdempotencyKey { get; set; }
@@ -40,12 +49,6 @@ public class PayoutCheckoutDTO
     [JsonPropertyName("metadata")]
     public string? Metadata { get; set; }
 
-    [JsonPropertyName("mode")]
-    public string? Mode { get; set; }
-
-    [JsonPropertyName("recurrent_token")]
-    public string? RecurrentToken { get; set; }
-
     [JsonPropertyName("products")]
-    public required IEnumerable<PayoutProductDTO> Products { get; set; }
+    public List<PayoutProductDTO> Products { get; set; } = new();
 }
