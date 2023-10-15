@@ -4,7 +4,6 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text;
-using System.Reflection.Emit;
 using Microsoft.Extensions.Configuration;
 using Devity.Payout.DTOs;
 using Microsoft.Extensions.Logging;
@@ -14,9 +13,9 @@ public class PayoutService
 {
     private readonly string _payoutUrl;
     private readonly string _authorizePath;
-    private readonly string _withdrawPath;
     private readonly string _balancePath;
     private readonly string _checkoutPath;
+    private readonly string _refundPath;
     private readonly string _clientId;
     private readonly string _clientSecret;
     private const int MAX_ATTEMPTS = 2;
@@ -45,9 +44,9 @@ public class PayoutService
         _clientSecret = clientSecret;
         _payoutUrl = payoutUrl;
         _authorizePath = _payoutUrl + "/authorize";
-        _withdrawPath = _payoutUrl + "/withdrawals";
         _balancePath = _payoutUrl + "/balance";
         _checkoutPath = _payoutUrl + "/checkouts";
+        _refundPath = _payoutUrl + "/refunds";
     }
 
     public async Task<string> GetTokenAsync()
@@ -132,6 +131,89 @@ public class PayoutService
         );
 
         return (await response.Content.ReadFromJsonAsync<PayoutCheckoutResponseDTO>())!;
+    }
+
+    public async Task<PayoutCheckoutDTO> GetCheckoutAsync(
+        int checkoutId
+    )
+    {
+        var token = await GetTokenAsync()!;
+
+        using var httpClient = new HttpClient();
+
+        HttpResponseMessage? response = null;
+
+        for (int i = 0; i < MAX_ATTEMPTS; i++)
+        {
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                "Bearer",
+                token
+            );
+
+            response = await httpClient.GetAsync($"{_checkoutPath}/{checkoutId}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning(
+                    $"Failed to get checkout on attempt {i + 1} out of {MAX_ATTEMPTS}: {response.StatusCode} {response.ReasonPhrase} {await response.Content.ReadAsStringAsync()}"
+                );
+
+                _lastAuthorization = null;
+                token = await GetTokenAsync();
+            }
+            else
+                break;
+        }
+
+        response!.EnsureSuccessStatusCode();
+
+        return (await response.Content.ReadFromJsonAsync<PayoutCheckoutDTO>())!;
+    }
+
+    public async Task<PayoutRefundResponseDTO> CreateRefundAsync(
+        PayoutRefundDTO payoutRefundDTO
+    )
+    {
+        var token = await GetTokenAsync()!;
+
+        using var httpClient = new HttpClient();
+
+        var data = payoutRefundDTO.PopulateSignature(_clientSecret);
+
+        var jsonString = JsonSerializer.Serialize(data);
+        var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
+        HttpResponseMessage? response = null;
+
+        for (int i = 0; i < MAX_ATTEMPTS; i++)
+        {
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                "Bearer",
+                token
+            );
+
+            response = await httpClient.PostAsync(_refundPath, content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning(
+                    $"Failed to create refund on attempt {i + 1} out of {MAX_ATTEMPTS}: {response.StatusCode} {response.ReasonPhrase} {await response.Content.ReadAsStringAsync()}"
+                );
+
+                _lastAuthorization = null;
+                token = await GetTokenAsync();
+            }
+            else
+                break;
+        }
+
+        response!.EnsureSuccessStatusCode();
+
+        _logger.LogInformation(
+            $"Refund of {payoutRefundDTO.AmountInCents / 100} EUR for checkout ID [{payoutRefundDTO.CheckoutId}] created successfully."
+        );
+
+        return (await response.Content.ReadFromJsonAsync<PayoutRefundResponseDTO>())!;
     }
 
     public async Task<PayoutBalanceResponseDTO[]> GetBalanceAsync()

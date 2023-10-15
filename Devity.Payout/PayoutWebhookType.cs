@@ -10,4 +10,10 @@ public enum PayoutWebhookType
     CheckoutSucceeded,
     [Display(Name = "checkout.expired")]
     CheckoutExpired,
+    [Display(Name = "checkout.refund_request")]
+    CheckoutRefundRequest,
+    [Display(Name = "checkout.refunded")]
+    CheckoutRefunded,
+    [Display(Name = "checkout.refund_failed")]
+    CheckoutRefundFailed,
 }

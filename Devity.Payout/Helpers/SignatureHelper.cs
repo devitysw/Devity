@@ -17,6 +17,17 @@ public static class SignatureHelper
 
         return payoutCheckoutDTO;
     }
+    public static PayoutRefundDTO PopulateSignature(this PayoutRefundDTO payoutRefundDTO, string clientSecret)
+    {
+        payoutRefundDTO.Nonce = Guid.NewGuid().ToString("N");
+
+        var signatureBase = $"{payoutRefundDTO.AmountInCents}|{payoutRefundDTO.Currency}|{payoutRefundDTO.ExternalId}|{string.Empty}" +
+            $"|{payoutRefundDTO.Nonce}|{clientSecret}";
+
+        payoutRefundDTO.Signature = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(signatureBase))).ToLower();
+
+        return payoutRefundDTO;
+    }
 
     public static bool IsSignatureValid(this PayoutWebhookDTO payoutWebhookDto, string clientSecret)
     {
