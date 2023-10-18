@@ -7,9 +7,6 @@ public class PayoutRefundResponseDTO
     [JsonPropertyName("id")]
     public required int PayoutId { get; set; }
 
-    [JsonPropertyName("created_at")]
-    public required DateTime CreatedAt { get; set; }
-
     [JsonPropertyName("currency")]
     public required string Currency { get; set; }
 
@@ -23,7 +20,7 @@ public class PayoutRefundResponseDTO
     public required double AmountInCents { get; set; }
 
     [JsonPropertyName("iban")]
-    public required string Iban { get; set; }
+    public string? Iban { get; set; }
 
     [JsonPropertyName("signature")]
     public required string Signature { get; set; }

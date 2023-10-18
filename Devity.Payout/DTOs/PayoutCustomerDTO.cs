@@ -14,5 +14,5 @@ public class PayoutCustomerDTO
     public required string EmailAddress { get; set; }
 
     [JsonPropertyName("phone")]
-    public required string PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
 }

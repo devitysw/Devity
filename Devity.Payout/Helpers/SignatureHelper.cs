@@ -31,8 +31,6 @@ public static class SignatureHelper
 
     public static bool IsSignatureValid(this PayoutWebhookDTO payoutWebhookDto, string clientSecret)
     {
-        payoutWebhookDto.Nonce = Guid.NewGuid().ToString("N");
-
         var signatureBase = $"{payoutWebhookDto.ExternalId}|{payoutWebhookDto.Type}" +
             $"|{payoutWebhookDto.Nonce}|{clientSecret}";
 

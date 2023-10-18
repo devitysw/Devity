@@ -14,11 +14,11 @@ public class PayoutPaymentDTO
     public required double NetInCents { get; set; }
 
     [JsonPropertyName("object")]
-    public required double Object { get; set; }
+    public required string Object { get; set; }
 
     [JsonPropertyName("payment_method")]
-    public required double PaymentMethod { get; set; }
+    public required string PaymentMethod { get; set; }
 
     [JsonPropertyName("status")]
-    public required double Status { get; set; }
+    public required string Status { get; set; }
 }
