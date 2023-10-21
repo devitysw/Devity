@@ -125,6 +125,8 @@ public class PayoutService
                 break;
         }
 
+        response!.EnsureSuccessStatusCode();
+
         _logger.LogInformation(
             $"Checkout of {payoutCheckoutDTO.AmountInCents / 100} EUR for user {payoutCheckoutDTO.Customer.Firstname} {payoutCheckoutDTO.Customer.Lastname} [{payoutCheckoutDTO.Customer.EmailAddress}] created successfully."
         );
