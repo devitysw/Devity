@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Devity.Payout.DTOs;
 using Microsoft.Extensions.Logging;
 using Devity.Payout.Helpers;
+using Devity.Payout.Exceptions;
 
 public class PayoutService
 {
@@ -124,8 +125,6 @@ public class PayoutService
                 break;
         }
 
-        response!.EnsureSuccessStatusCode();
-
         _logger.LogInformation(
             $"Checkout of {payoutCheckoutDTO.AmountInCents / 100} EUR for user {payoutCheckoutDTO.Customer.Firstname} {payoutCheckoutDTO.Customer.Lastname} [{payoutCheckoutDTO.Customer.EmailAddress}] created successfully."
         );
@@ -207,7 +206,18 @@ public class PayoutService
                 break;
         }
 
-        response!.EnsureSuccessStatusCode();
+        try
+        {
+            response!.EnsureSuccessStatusCode();
+        }
+        catch (Exception)
+        {
+            var message = await response!.Content.ReadAsStringAsync();
+
+            if (response!.StatusCode == System.Net.HttpStatusCode.BadRequest && message.Contains("balance is not available yet"))
+                throw new PayoutBalanceUnavailableException(message);
+            else throw;
+        }
 
         _logger.LogInformation(
             $"Refund of {payoutRefundDTO.AmountInCents / 100} EUR for checkout ID [{payoutRefundDTO.CheckoutId}] created successfully."
