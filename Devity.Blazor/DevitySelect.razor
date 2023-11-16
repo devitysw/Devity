@@ -3,7 +3,7 @@
 @typeparam TValue
 
 <div class='devity-select @(_expand ? "active" : string.Empty)' style="@Style">
-    <button class='devity-select-toggle @(!UseAnimatedArrow ? "devity-select-bootstrap-arrow" : string.Empty)'
+    <button class='devity-select-toggle'
             role="combobox"
             aria-labelledby="select button"
             aria-haspopup="listbox_@_identifier"
@@ -24,11 +24,8 @@
         {
             <span class="devity-select-value">@_showcasedText</span>
         }
+        <svg class="devity-select-arrow" xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='#8a8a8a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6' /></svg>
     </button>
-    @if(UseAnimatedArrow)
-    {
-        <div class="devity-select-animated-arrow"></div>
-    }
     <ul class="devity-select-options" role="listbox_@_identifier" id="devity-select-options_@_identifier">
         @foreach(var item in Items)
         {
@@ -64,9 +61,6 @@
 
     [Parameter]
     public string Style { get; set; } = string.Empty;
-
-    [Parameter]
-    public bool UseAnimatedArrow { get; set; }
 
     private bool _expand;
     private string? _showcasedText;
