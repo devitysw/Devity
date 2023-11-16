@@ -3,19 +3,19 @@
     width: 400px;
     max-width: 100%;
     color: #000;
-    z-index: 1;
 }
 
 .devity-select-toggle {
     width: 100%;
     background-color: #fff;
-    padding: 0.675em 1em;
+    padding: 0.3em 1em;
     border: 1px solid #caced1;
     border-radius: 0.25rem;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
 }
 
 .devity-select-value {
@@ -44,6 +44,7 @@
     transform: scaleY(0);
     opacity: 0;
     visibility: hidden;
+    z-index: 1;
 }
 
     .devity-select-option {

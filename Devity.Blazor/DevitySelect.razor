@@ -2,14 +2,15 @@
 @using System.Linq.Expressions;
 @typeparam TValue
 
-<div class='devity-select @(_expand ? "active" : "")'>
+<div class='devity-select @(_expand ? "active" : "")' style="@Style">
     <button class="devity-select-toggle"
             role="combobox"
             aria-labelledby="select button"
             aria-haspopup="listbox_@_identifier"
             aria-expanded=@_expand
             aria-controls="devity-select-options_@_identifier"
-            @onclick="() => _expand = !_expand">
+    @onclick="() => _expand = !_expand"
+    @onclick:preventDefault=true>
         @if(string.IsNullOrWhiteSpace(_showcasedText))
         {
             if(string.IsNullOrWhiteSpace(DefaultShowcasedText))
@@ -58,13 +59,21 @@
     [Parameter]
     public string DefaultShowcasedText { get; set; } = string.Empty;
 
+    [Parameter]
+    public string Style { get; set; } = string.Empty;
+
     private bool _expand;
-    private string _showcasedText = string.Empty;
+    private string? _showcasedText;
     private Guid _identifier = Guid.NewGuid();
 
     protected override void OnInitialized()
     {
         ConvertMethod = item => item is TValue value ? value : default;
+
+        if(Value is not null)
+        {
+            _showcasedText = Items.FirstOrDefault(x => Value.Equals(x.Value)).Key;
+        }
     }
 
     private async void SelectOption(KeyValuePair<string, TValue?> item)
