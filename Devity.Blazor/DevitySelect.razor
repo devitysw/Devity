@@ -2,15 +2,15 @@
 @using System.Linq.Expressions;
 @typeparam TValue
 
-<div class='devity-select @(_expand ? "active" : "")' style="@Style">
-    <button class="devity-select-toggle"
+<div class='devity-select @(_expand ? "active" : string.Empty)' style="@Style">
+    <button class='devity-select-toggle @(!UseAnimatedArrow ? "devity-select-bootstrap-arrow" : string.Empty)'
             role="combobox"
             aria-labelledby="select button"
             aria-haspopup="listbox_@_identifier"
             aria-expanded=@_expand
             aria-controls="devity-select-options_@_identifier"
-    @onclick="() => _expand = !_expand"
-    @onclick:preventDefault=true>
+            @onclick="() => _expand = !_expand"
+            @onclick:preventDefault=true>
         @if(string.IsNullOrWhiteSpace(_showcasedText))
         {
             if(string.IsNullOrWhiteSpace(DefaultShowcasedText))
@@ -24,8 +24,11 @@
         {
             <span class="devity-select-value">@_showcasedText</span>
         }
-        <span class="devity-select-arrow"></span>
     </button>
+    @if(UseAnimatedArrow)
+    {
+        <div class="devity-select-animated-arrow"></div>
+    }
     <ul class="devity-select-options" role="listbox_@_identifier" id="devity-select-options_@_identifier">
         @foreach(var item in Items)
         {
@@ -61,6 +64,9 @@
 
     [Parameter]
     public string Style { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool UseAnimatedArrow { get; set; }
 
     private bool _expand;
     private string? _showcasedText;
