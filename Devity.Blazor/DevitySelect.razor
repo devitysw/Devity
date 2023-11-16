@@ -1,0 +1,85 @@
+@using Microsoft.AspNetCore.Components.Web
+@using System.Linq.Expressions;
+@typeparam TValue
+
+<div class='devity-select @(_expand ? "active" : "")'>
+    <button class="devity-select-toggle"
+            role="combobox"
+            aria-labelledby="select button"
+            aria-haspopup="listbox_@_identifier"
+            aria-expanded=@_expand
+            aria-controls="devity-select-options_@_identifier"
+            @onclick="() => _expand = !_expand">
+        @if(string.IsNullOrWhiteSpace(_showcasedText))
+        {
+            if(string.IsNullOrWhiteSpace(DefaultShowcasedText))
+            {
+                <span class="devity-select-value">&nbsp;</span>
+            } else
+            {
+                <span class="devity-select-value">@DefaultShowcasedText</span>
+            }
+        } else
+        {
+            <span class="devity-select-value">@_showcasedText</span>
+        }
+        <span class="devity-select-arrow"></span>
+    </button>
+    <ul class="devity-select-options" role="listbox_@_identifier" id="devity-select-options_@_identifier">
+        @foreach(var item in Items)
+        {
+            <li class="devity-select-option" role="option" @onclick="() => SelectOption(item)" @onkeyup="() => SelectOption(item)">
+                <input type="radio" name="@_identifier" id="input_@item.Key" />
+                @if (!string.IsNullOrWhiteSpace(item.Key))
+                {
+                    <label for="input_@item.Key">@item.Key</label>
+                } else
+                {
+                    <label for="input_@item.Key">&nbsp;</label>
+                }
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    [Parameter]
+    public required Dictionary<string, TValue?> Items { get; set; }
+
+    [Parameter] 
+    public required TValue? Value { get; set; }
+    [Parameter] 
+    public required EventCallback<TValue?> ValueChanged { get; set; }
+    [Parameter] 
+    public required Expression<Func<TValue?>> ValueExpression { get; set; }
+    [Parameter] 
+    public Func<TValue?, TValue?>? ConvertMethod { get; set; }
+
+    [Parameter]
+    public string DefaultShowcasedText { get; set; } = string.Empty;
+
+    private bool _expand;
+    private string _showcasedText = string.Empty;
+    private Guid _identifier = Guid.NewGuid();
+
+    protected override void OnInitialized()
+    {
+        ConvertMethod = item => item is TValue value ? value : default;
+    }
+
+    private async void SelectOption(KeyValuePair<string, TValue?> item)
+    {
+        if (ConvertMethod is null)
+            throw new Exception("ConvertMethod was null.");
+
+        _showcasedText = item.Key;
+        _expand = false;
+
+        var value = ConvertMethod(item.Value);
+
+        if (Value != null && Value.Equals(value)) return;
+
+        Value = value;
+        await ValueChanged.InvokeAsync(value);
+    }
+}

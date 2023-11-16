@@ -1,0 +1,109 @@
+.devity-select {
+    position: relative;
+    width: 400px;
+    max-width: 100%;
+    color: #000;
+    z-index: 1;
+}
+
+.devity-select-toggle {
+    width: 100%;
+    background-color: #fff;
+    padding: 0.675em 1em;
+    border: 1px solid #caced1;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.devity-select-value {
+}
+
+.devity-select-arrow {
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid #000;
+    transition: transform ease-in-out 0.3s;
+}
+
+.devity-select-options {
+    position: absolute;
+    list-style: none;
+    width: 100%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    background-color: #fff;
+    border: 1px solid #caced1;
+    border-radius: 4px;
+    left: 0px;
+    padding: 0.5px;
+    max-height: 200px;
+    overflow-y: auto;
+    transition: 0.5s ease;
+    transform: scaleY(0);
+    opacity: 0;
+    visibility: hidden;
+}
+
+    .devity-select-option {
+        position: relative;
+        cursor: pointer;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+        .devity-select-option input {
+            cursor: pointer;
+        }
+
+        .devity-select-option label {
+            width: 100%;
+            padding: 8px 10px;
+            cursor: pointer;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+    .devity-select-options::-webkit-scrollbar {
+        width: 7px;
+    }
+
+    .devity-select-options::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 25px;
+    }
+
+    .devity-select-options::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 25px;
+    }
+
+    .devity-select-option:hover,
+    .devity-select-options input:checked ~ label {
+        background-color: #f2f2f2;
+    }
+
+    .devity-select-options input:focus ~ label {
+        background-color: #dfdfdf;
+    }
+
+    .devity-select-options input[type="radio"] {
+        position: absolute;
+        left: 0;
+        opacity: 0;
+    }
+
+/* interactivity */
+
+.devity-select.active .devity-select-arrow {
+    transform: rotate(180deg);
+}
+
+.devity-select.active .devity-select-options {
+    opacity: 1;
+    visibility: visible;
+    transform: scaleY(1);
+}
