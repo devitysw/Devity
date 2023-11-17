@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<Description>A package with some helpful Blazor components.</Description>
 	<PackageVersion>$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm"))</PackageVersion>
     <AssemblyVersion>$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm"))</AssemblyVersion>
 	<PublishRepositoryUrl>true</PublishRepositoryUrl>
