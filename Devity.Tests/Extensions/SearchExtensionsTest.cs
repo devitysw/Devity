@@ -18,4 +18,10 @@ public class SearchExtensionsTest
         Assert.That("Ahoj, ako sa máš?".Has("bla"), Is.False);
         Assert.That("".Has("e"), Is.False);
     }
+
+    [Test]
+    public void NormalizeForSearchTest()
+    {
+        Assert.That("Ahoj, ako sa máš?".NormalizeForSearch(), Is.EqualTo("ahojakosamas?"));
+    }
 }
