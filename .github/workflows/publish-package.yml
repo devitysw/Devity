@@ -17,17 +17,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: 7.0.x
-
-    - name: Build and test
-      working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
-      run: | 
-        dotnet build --configuration Release
-        dotnet test --configuration Release --no-build
       
     - name: Check for changes
       id: check-changes
@@ -35,6 +24,19 @@ jobs:
         changedFiles=$(git diff --name-only Devity.${{ inputs.PROJECT_NAME }})
         echo "Changed files: $changedFiles"
         echo "::set-output name=changes::${changedFiles}"
+
+    - name: Setup .NET Core
+      if: steps.check-changes.outputs.changes != ''
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 7.0.x
+
+    - name: Build and test
+      if: steps.check-changes.outputs.changes != ''
+      working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
+      run: | 
+        dotnet build --configuration Release
+        dotnet test --configuration Release --no-build
       
     - name: Package
       if: steps.check-changes.outputs.changes != ''
