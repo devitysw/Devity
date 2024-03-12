@@ -24,16 +24,25 @@ jobs:
         dotnet-version: 7.0.x
 
     - name: Build and test
+      working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
       run: | 
-        cd Devity.${{ inputs.PROJECT_NAME }}
         dotnet build --configuration Release
         dotnet test --configuration Release --no-build
       
+    - name: Check for changes
+      id: check-changes
+      run: |
+        changedFiles=$(git diff --name-only Devity.${{ inputs.PROJECT_NAME }})
+        echo "Changed files: $changedFiles"
+        echo "::set-output name=changes::${changedFiles}"
+      
     - name: Package
+      if: steps.check-changes.outputs.changes != ''
       working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
       run: dotnet pack --configuration Release --no-build
 
     - name: Publish
+      if: steps.check-changes.outputs.changes != ''
       working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
       run: |
         cd bin
