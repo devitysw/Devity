@@ -23,7 +23,7 @@ jobs:
       run: |
         changedFiles=$(git diff --name-only Devity.${{ inputs.PROJECT_NAME }})
         echo "Changed files: $changedFiles"
-        echo "::set-output name=changes::${changedFiles}"
+        echo "changes=${changedFiles}" >> $GITHUB_OUTPUT
 
     - name: Setup .NET Core
       if: steps.check-changes.outputs.changes != ''
