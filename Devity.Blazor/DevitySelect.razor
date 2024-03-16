@@ -31,13 +31,13 @@
         @foreach(var item in Items)
         {
             <li class="devity-select-option" role="option" @onclick="() => SelectOption(item)" @onkeyup="() => SelectOption(item)">
-                <input type="radio" name="@_identifier" id="input_@item.Key" />
+                <input type="radio" name="@_identifier" id="input_@(_identifier)_@item.Key" />
                 @if (!string.IsNullOrWhiteSpace(item.Key))
                 {
-                    <label for="input_@item.Key">@item.Key</label>
+                    <label for="input_@(_identifier)_@item.Key">@item.Key</label>
                 } else
                 {
-                    <label for="input_@item.Key">&nbsp;</label>
+                    <label for="input_@(_identifier)_@item.Key">&nbsp;</label>
                 }
             </li>
         }
