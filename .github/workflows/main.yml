@@ -6,8 +6,12 @@ on:
       - main
 
 jobs:
+  run-tests:
+    uses: devitysw/Devity/.github/workflows/run-tests.yml@main
+
   publish-blazor:
     uses: devitysw/Devity/.github/workflows/publish-package.yml@main
+    needs: run-tests
     with:
       PROJECT_NAME: 'Blazor'
     secrets:
@@ -15,6 +19,7 @@ jobs:
 
   publish-extensions:
     uses: devitysw/Devity/.github/workflows/publish-package.yml@main
+    needs: run-tests
     with:
       PROJECT_NAME: 'Extensions'
     secrets:
@@ -22,6 +27,7 @@ jobs:
 
   publish-mailing:
     uses: devitysw/Devity/.github/workflows/publish-package.yml@main
+    needs: run-tests
     with:
       PROJECT_NAME: 'Mailing'
     secrets:
@@ -29,6 +35,7 @@ jobs:
 
   publish-payout:
     uses: devitysw/Devity/.github/workflows/publish-package.yml@main
+    needs: run-tests
     with:
       PROJECT_NAME: 'Payout'
     secrets:

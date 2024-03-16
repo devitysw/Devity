@@ -9,6 +9,16 @@ on:
     secrets:
       NUGET_API_KEY:
         required: true
+  workflow_dispatch:
+    inputs:
+      PROJECT_NAME:
+        required: true
+        type: choice
+        options:
+          - Blazor
+          - Extensions
+          - Mailing
+          - Payout
 
 jobs:
   publish:
