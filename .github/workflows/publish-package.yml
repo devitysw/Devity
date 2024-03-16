@@ -27,11 +27,14 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 3
       
     - name: Check for changes
+      if: github.event_name != 'workflow_dispatch'
       id: check-changes
       run: |
-        changedFiles=$(git diff --name-only Devity.${{ inputs.PROJECT_NAME }})
+        changedFiles=$(git diff --name-only ${{ github.event.before }}..${{ github.event.after }} -- Devity.${{ inputs.PROJECT_NAME }})
         echo "Changed files: $changedFiles"
         echo "changes=${changedFiles}" >> $GITHUB_OUTPUT
 
