@@ -36,25 +36,25 @@ jobs:
         echo "changes=${changedFiles}" >> $GITHUB_OUTPUT
 
     - name: Setup .NET Core
-      if: steps.check-changes.outputs.changes != ''
+      if: steps.check-changes.outputs.changes != '' || github.event_name == 'workflow_dispatch'
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 7.0.x
 
     - name: Build and test
-      if: steps.check-changes.outputs.changes != ''
+      if: steps.check-changes.outputs.changes != '' || github.event_name == 'workflow_dispatch'
       working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
       run: | 
         dotnet build --configuration Release
         dotnet test --configuration Release --no-build
       
     - name: Package
-      if: steps.check-changes.outputs.changes != ''
+      if: steps.check-changes.outputs.changes != '' || github.event_name == 'workflow_dispatch'
       working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
       run: dotnet pack --configuration Release --no-build
 
     - name: Publish
-      if: steps.check-changes.outputs.changes != ''
+      if: steps.check-changes.outputs.changes != '' || github.event_name == 'workflow_dispatch'
       working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
       run: |
         cd bin
