@@ -9,8 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Devity.Blazor", "Devity.Bla
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Devity.Tests", "Devity.Tests\Devity.Tests.csproj", "{EB920986-6BA3-48C0-B556-B2168B638E2B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Devity.Payout", "Devity.Payout\Devity.Payout.csproj", "{28EE0E08-E3C0-4498-8381-2A3AEDC4A7CE}"
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Devity.Mailing", "Devity.Mailing\Devity.Mailing.csproj", "{573237EC-2AD6-4E1B-AEF5-283DF2AB49A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Devity.Payout", "Devity.Payout\Devity.Payout.csproj", "{28EE0E08-E3C0-4498-8381-2A3AEDC4A7CE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Devity.Mailing", "Devity.Mailing\Devity.Mailing.csproj", "{573237EC-2AD6-4E1B-AEF5-283DF2AB49A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
