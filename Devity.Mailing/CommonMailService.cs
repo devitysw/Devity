@@ -20,7 +20,9 @@ public abstract class CommonMailService
         _emailService = mailService;
 
         if (!subjectFormat.Contains(TITLE_KEY))
-            throw new Exception($"The subject format argument is missing it's dynamic parameter {TITLE_KEY}. Read constructor documentation for more information.");
+            throw new Exception(
+                $"The subject format argument is missing it's dynamic parameter {TITLE_KEY}. Read constructor documentation for more information."
+            );
 
         _subjectFormat = subjectFormat;
     }
@@ -48,7 +50,9 @@ public abstract class CommonMailService
             var lastKey = body.LastIndexOf(loop.Key);
 
             if (startPoint == lastKey)
-                throw new FormatException($"The loop key was only found once in the e-mail template.");
+                throw new FormatException(
+                    $"The loop key was only found once in the e-mail template."
+                );
 
             var endPoint = lastKey + loop.Key.Length;
 
@@ -64,11 +68,16 @@ public abstract class CommonMailService
                 {
                     try
                     {
-                        target = target.Replace(key.Key, key.Value.Compile().DynamicInvoke(obj).ToString());
+                        target = target.Replace(
+                            key.Key,
+                            key.Value.Compile().DynamicInvoke(obj).ToString()
+                        );
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
-                        throw new Exception($"Failed to replace value of key {key.Key}. Underlying exception: {ex}");
+                        throw new Exception(
+                            $"Failed to replace value of key {key.Key}. Underlying exception: {ex}"
+                        );
                     }
                 }
 
@@ -82,6 +91,12 @@ public abstract class CommonMailService
         foreach (var dataPoint in emailData.KeyMap)
             body = body.Replace(dataPoint.Key, dataPoint.Value);
 
-        await _emailService.SendAsync(emailData.EmailAddress, _subjectFormat.Replace(TITLE_KEY, emailData.SubjectMessage), body, true);
+        await _emailService.SendAsync(
+            emailData.EmailAddress,
+            _subjectFormat.Replace(TITLE_KEY, emailData.SubjectMessage),
+            body,
+            emailData.Attachments.ToArray(),
+            true
+        );
     }
 }

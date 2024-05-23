@@ -7,6 +7,7 @@ public class DevityEmail
     public string BodyPath { get; }
     public Dictionary<string, string> KeyMap { get; } = new();
     public Dictionary<string, dynamic> LoopMap { get; } = new();
+    public List<string> Attachments { get; } = new();
 
     public DevityEmail(string emailAddress, string subjectMessage, string bodyPath)
     {
@@ -24,6 +25,12 @@ public class DevityEmail
     public DevityEmail AddLoop(string key, dynamic loop)
     {
         LoopMap.Add(key, loop);
+        return this;
+    }
+
+    public DevityEmail AddAttachment(string attachment)
+    {
+        Attachments.Add(attachment);
         return this;
     }
 }
