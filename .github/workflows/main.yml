@@ -1,4 +1,4 @@
-name: Publish all changed NuGet packages
+name: Publish all NuGet packages
 
 on:
   push:
