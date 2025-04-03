@@ -1,4 +1,4 @@
-﻿using NETCore.MailKit.Core;
+﻿using Devity.NETCore.MailKit.Core;
 
 namespace Devity.Mailing;
 
