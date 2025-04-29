@@ -9,10 +9,34 @@ public static class TemplateHelper
 
         string html = File.ReadAllText(template.BodyPath);
 
+        foreach (var condition in template.ConditionMap)
+        {
+            if (!html.Contains(condition.Key))
+                throw new FormatException($"{condition.Key} was missing in the template.");
+
+            if (condition.Value)
+            {
+                html = html.Replace(condition.Key, string.Empty);
+                continue;
+            }
+
+            var startPoint = html.IndexOf(condition.Key);
+            var lastKey = html.LastIndexOf(condition.Key);
+
+            if (startPoint == lastKey)
+                throw new FormatException(
+                    $"The condition key was only found once in the template."
+                );
+
+            var endPoint = lastKey + condition.Key.Length;
+
+            html = html.Remove(startPoint, endPoint - startPoint);
+        }
+
         foreach (var loop in template.LoopMap)
         {
             if (!html.Contains(loop.Key))
-                throw new FormatException($"{loop.Key} was missing in the e-mail template.");
+                throw new FormatException($"{loop.Key} was missing in the template.");
 
             if (loop.Key.Length == 0)
                 throw new FormatException($"The loop key was empty.");
@@ -21,9 +45,7 @@ public static class TemplateHelper
             var lastKey = html.LastIndexOf(loop.Key);
 
             if (startPoint == lastKey)
-                throw new FormatException(
-                    $"The loop key was only found once in the e-mail template."
-                );
+                throw new FormatException($"The loop key was only found once in the template.");
 
             var endPoint = lastKey + loop.Key.Length;
 
