@@ -17,4 +17,8 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Devity.Extensions\Devity.Extensions.csproj" />
+  </ItemGroup>
+
 </Project>

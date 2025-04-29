@@ -1,4 +1,5 @@
-﻿using Devity.NETCore.MailKit.Core;
+﻿using Devity.Extensions.Templates;
+using Devity.NETCore.MailKit.Core;
 
 namespace Devity.Mailing;
 
@@ -33,68 +34,10 @@ public abstract class CommonMailService
     /// <param name="emailData">An e-mail in the data format.</param>
     protected async Task SendEmailAsync(DevityEmail emailData)
     {
-        if (!File.Exists(emailData.BodyPath))
-            throw new FileNotFoundException("Could not find e-mail body file when sending e-mail.");
-
-        string body = File.ReadAllText(emailData.BodyPath);
-
-        foreach (var loop in emailData.LoopMap)
-        {
-            if (!body.Contains(loop.Key))
-                throw new FormatException($"{TITLE_KEY} was missing in the e-mail template.");
-
-            if (loop.Key.Length == 0)
-                throw new FormatException($"The loop key was empty.");
-
-            var startPoint = body.IndexOf(loop.Key);
-            var lastKey = body.LastIndexOf(loop.Key);
-
-            if (startPoint == lastKey)
-                throw new FormatException(
-                    $"The loop key was only found once in the e-mail template."
-                );
-
-            var endPoint = lastKey + loop.Key.Length;
-
-            string partToReplace = body[startPoint..endPoint];
-
-            body = body.Remove(startPoint, endPoint - startPoint);
-
-            foreach (var obj in loop.Value.Objects)
-            {
-                var target = partToReplace;
-
-                foreach (var key in loop.Value.KeyMap)
-                {
-                    try
-                    {
-                        target = target.Replace(
-                            key.Key,
-                            key.Value.Compile().DynamicInvoke(obj).ToString()
-                        );
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new Exception(
-                            $"Failed to replace value of key {key.Key}. Underlying exception: {ex}"
-                        );
-                    }
-                }
-
-                body = body.Insert(startPoint, target);
-                startPoint += target.Length;
-            }
-
-            body = body.Replace(loop.Key, string.Empty);
-        }
-
-        foreach (var dataPoint in emailData.KeyMap)
-            body = body.Replace(dataPoint.Key, dataPoint.Value);
-
         await _emailService.SendAsync(
             emailData.EmailAddress,
             _subjectFormat.Replace(TITLE_KEY, emailData.SubjectMessage),
-            body,
+            emailData.Template.PopulateTemplate(),
             emailData.Attachments.ToArray(),
             true
         );
