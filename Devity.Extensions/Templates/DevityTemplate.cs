@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-
-namespace Devity.Extensions.Templates;
+﻿namespace Devity.Extensions.Templates;
 
 public class DevityTemplate
 {
