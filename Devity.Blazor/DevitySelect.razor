@@ -116,7 +116,7 @@
             }
             finally
             {
-                _cts.Dispose();
+                _cts?.Dispose();
                 _cts = null;
                 _delayTask = null;
             }
@@ -144,7 +144,7 @@
             }
             finally
             {
-                _cts.Dispose();
+                _cts?.Dispose();
                 _cts = null;
                 _delayTask = null;
             }
