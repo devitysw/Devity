@@ -67,7 +67,7 @@
     public EventCallback OnOpen { get; set; }
 
     [Parameter]
-    public EventCallback OnClose { get; set; }
+    public EventCallback OnClosed { get; set; }
 
     private bool _expand;
     private string? _showcasedText;
@@ -90,7 +90,7 @@
 
         _showcasedText = item.Key;
         _expand = false;
-        await OnClose.InvokeAsync();
+        await OnClosed.InvokeAsync();
 
         var value = ConvertMethod(item.Value);
 
@@ -105,7 +105,10 @@
         _expand = !_expand;
         if (_expand)
             await OnOpen.InvokeAsync();
-        else
-            await OnClose.InvokeAsync();
+        else 
+        {
+            await Task.Delay(550);
+            await OnClosed.InvokeAsync();
+        }
     }
 }
