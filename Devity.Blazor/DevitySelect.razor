@@ -10,7 +10,7 @@
             aria-haspopup="listbox_@_identifier"
             aria-expanded=@_expand
             aria-controls="devity-select-options_@_identifier"
-            @onclick="ToggleState"
+            @onclick="async () => await SetState(!_expand)"
             @onclick:preventDefault=true>
         @if(string.IsNullOrWhiteSpace(_showcasedText))
         {
@@ -72,6 +72,8 @@
     private bool _expand;
     private string? _showcasedText;
     private Guid _identifier = Guid.NewGuid();
+    private CancellationTokenSource? _cts;
+    private Task? _delayTask;
 
     protected override void OnInitialized()
     {
@@ -89,8 +91,7 @@
             throw new Exception("ConvertMethod was null.");
 
         _showcasedText = item.Key;
-        _expand = false;
-        await OnClosed.InvokeAsync();
+        await SetState(false);
 
         var value = ConvertMethod(item.Value);
 
@@ -100,15 +101,53 @@
         await ValueChanged.InvokeAsync(value);
     }
 
-    private async Task ToggleState()
+    private async Task CancelRunningDelay()
     {
-        _expand = !_expand;
+        if (_delayTask is not null && !_delayTask.IsCompleted && _cts is not null)
+        {
+            _cts.Cancel();
+            try
+            {
+                await _delayTask;
+            }
+            catch (TaskCanceledException)
+            {
+                // Ignore
+            }
+            finally
+            {
+                _cts.Dispose();
+                _cts = null;
+                _delayTask = null;
+            }
+        }
+    }
+
+    private async Task SetState(bool state)
+    {
+        await CancelRunningDelay();
+        _expand = state;
         if (_expand)
             await OnOpen.InvokeAsync();
         else 
         {
-            await Task.Delay(550);
-            await OnClosed.InvokeAsync();
+            _cts = new CancellationTokenSource();
+            _delayTask = Task.Delay(550, _cts.Token);
+            try
+            {
+                await _delayTask;
+                await OnClosed.InvokeAsync();
+            }
+            catch (TaskCanceledException)
+            {
+                // Ignore
+            }
+            finally
+            {
+                _cts.Dispose();
+                _cts = null;
+                _delayTask = null;
+            }
         }
     }
 }
