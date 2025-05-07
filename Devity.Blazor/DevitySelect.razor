@@ -10,7 +10,7 @@
             aria-haspopup="listbox_@_identifier"
             aria-expanded=@_expand
             aria-controls="devity-select-options_@_identifier"
-            @onclick="() => _expand = !_expand"
+            @onclick="ToggleState"
             @onclick:preventDefault=true>
         @if(string.IsNullOrWhiteSpace(_showcasedText))
         {
@@ -63,6 +63,12 @@
     [Parameter]
     public string Style { get; set; } = string.Empty;
 
+    [Parameter]
+    public EventCallback OnOpen { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
     private bool _expand;
     private string? _showcasedText;
     private Guid _identifier = Guid.NewGuid();
@@ -84,6 +90,7 @@
 
         _showcasedText = item.Key;
         _expand = false;
+        await OnClose.InvokeAsync();
 
         var value = ConvertMethod(item.Value);
 
@@ -91,5 +98,14 @@
 
         Value = value;
         await ValueChanged.InvokeAsync(value);
+    }
+
+    private async Task ToggleState()
+    {
+        _expand = !_expand;
+        if (_expand)
+            await OnOpen.InvokeAsync();
+        else
+            await OnClose.InvokeAsync();
     }
 }
