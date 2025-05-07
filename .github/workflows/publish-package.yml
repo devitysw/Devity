@@ -30,34 +30,34 @@ jobs:
       with:
         fetch-depth: 3
       
-    - name: Check for changes
-      if: github.event_name != 'workflow_dispatch'
-      id: check-changes
-      run: |
-        changedFiles=$(git diff --name-only ${{ github.event.before }}..${{ github.event.after }} -- Devity.${{ inputs.PROJECT_NAME }})
-        echo "Changed files: $changedFiles"
-        echo "changes=${changedFiles//[$'\n\r']/ }" >> $GITHUB_OUTPUT
+    # - name: Check for changes
+    #   if: github.event_name != 'workflow_dispatch'
+    #   id: check-changes
+    #   run: |
+    #     changedFiles=$(git diff --name-only ${{ github.event.before }}..${{ github.event.after }} -- Devity.${{ inputs.PROJECT_NAME }})
+    #     echo "Changed files: $changedFiles"
+    #     echo "changes=${changedFiles//[$'\n\r']/ }" >> $GITHUB_OUTPUT
 
     - name: Setup .NET Core
-      if: steps.check-changes.outputs.changes != '' || github.event_name == 'workflow_dispatch'
+      # if: steps.check-changes.outputs.changes != '' || github.event_name == 'workflow_dispatch'
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
 
     - name: Build and test
-      if: steps.check-changes.outputs.changes != '' || github.event_name == 'workflow_dispatch'
+      # if: steps.check-changes.outputs.changes != '' || github.event_name == 'workflow_dispatch'
       working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
       run: | 
         dotnet build --configuration Release
         dotnet test --configuration Release --no-build
       
     - name: Package
-      if: steps.check-changes.outputs.changes != '' || github.event_name == 'workflow_dispatch'
+      # if: steps.check-changes.outputs.changes != '' || github.event_name == 'workflow_dispatch'
       working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
       run: dotnet pack --configuration Release --no-build
 
     - name: Publish
-      if: steps.check-changes.outputs.changes != '' || github.event_name == 'workflow_dispatch'
+      # if: steps.check-changes.outputs.changes != '' || github.event_name == 'workflow_dispatch'
       working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
       run: |
         cd bin
