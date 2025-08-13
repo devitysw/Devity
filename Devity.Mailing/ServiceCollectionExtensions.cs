@@ -1,4 +1,4 @@
-﻿using Devity.NETCore.MailKit.Extensions;
+using Devity.NETCore.MailKit.Extensions;
 using Devity.NETCore.MailKit.Infrastructure.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,4 +27,11 @@ public static class ServiceCollectionExtensions
 
         return services.AddScoped<T>().AddMailKit(options => options.UseMailKit(emailOptions));
     }
+
+    public static IServiceCollection AddDevityMailing<T>(
+        this IServiceCollection services,
+        MailKitOptions mailKitOptions
+    )
+        where T : CommonMailService =>
+        services.AddScoped<T>().AddMailKit(options => options.UseMailKit(mailKitOptions));
 }
