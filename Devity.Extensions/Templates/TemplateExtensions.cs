@@ -1,4 +1,4 @@
-﻿namespace Devity.Extensions.Templates;
+namespace Devity.Extensions.Templates;
 
 public static class TemplateHelper
 {
@@ -36,7 +36,7 @@ public static class TemplateHelper
         foreach (var loop in template.LoopMap)
         {
             if (!html.Contains(loop.Key))
-                throw new FormatException($"{loop.Key} was missing in the template.");
+                continue;
 
             if (loop.Key.Length == 0)
                 throw new FormatException($"The loop key was empty.");
