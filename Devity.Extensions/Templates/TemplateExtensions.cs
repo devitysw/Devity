@@ -82,7 +82,7 @@ public static class TemplateHelper
         }
 
         foreach (var dataPoint in template.KeyMap)
-            html = html.Replace(dataPoint.Key, dataPoint.Value);
+            html = html.Replace(dataPoint.Key, dataPoint.Value ?? string.Empty);
 
         return html;
     }

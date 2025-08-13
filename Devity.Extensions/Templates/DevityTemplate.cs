@@ -1,9 +1,9 @@
-﻿namespace Devity.Extensions.Templates;
+namespace Devity.Extensions.Templates;
 
 public class DevityTemplate
 {
     public string BodyPath { get; }
-    public Dictionary<string, string> KeyMap { get; } = new();
+    public Dictionary<string, string?> KeyMap { get; } = new();
     public Dictionary<string, dynamic> LoopMap { get; } = new();
     public Dictionary<string, bool> ConditionMap { get; } = new();
 
@@ -12,7 +12,7 @@ public class DevityTemplate
         BodyPath = bodyPath;
     }
 
-    public DevityTemplate AddKey(string key, string value)
+    public DevityTemplate AddKey(string key, string? value)
     {
         KeyMap.Add(key, value);
         return this;
