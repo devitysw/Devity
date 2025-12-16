@@ -6,11 +6,34 @@
 
 Welcome to your new app.
 
-<EditForm Model="_testObject">
+<EditForm Model="_testObject" OnValidSubmit="OnValidSubmit">
 	<Name For="() => _testObject.Text" style="color: red;"/>
 	<InputText @bind-Value="_testObject.Text"/>
+
+	<Name For="() => _testObject.SelectedOption" />
+	<DevitySelect Items="_selectOptions" @bind-Value="_testObject.SelectedOption" />
+
+	<button type="submit">Submit</button>
 </EditForm>
 
+
 @code {
+	[CascadingParameter(Name = Constants.CascadingParameters.Toasts)]
+	public Toasts Toasts { get; set; } = null!;
+
 	private TestObject _testObject = new();
+	private Dictionary<string, Toasts.ToastType?> _selectOptions = new()
+	{
+		{ "Success", Toasts.ToastType.Success },
+		{ "Info", Toasts.ToastType.Info },
+		{ "Warning", Toasts.ToastType.Warning },
+		{ "Error", Toasts.ToastType.Error }
+	};
+
+	private void RunToast(Toasts.ToastType? toastType) => Toasts.RunToast(new("This is just a testing notification to showcase how it can look.", toastType ?? Toasts.ToastType.Info));
+
+	private void OnValidSubmit()
+	{
+		RunToast(_testObject.SelectedOption);
+	}
 }

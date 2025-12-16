@@ -1,0 +1,123 @@
+﻿<div class="fixed right-5 bottom-5 z-50 flex flex-col items-end gap-3 transition-all">
+	@foreach (var toast in _allToasts)
+	{
+		<div @key=toast data-active="@(_showing.Contains(toast).ToString())" class="@(GetOutlineColor(toast.Type)) @GetBgColor(toast.Type) flex flex-row items-center justify-between space-x-8 overflow-hidden rounded-md px-4 py-3 shadow outline transition-all duration-500 ease-in-out select-none data-[active=False]:translate-x-[500%]">
+			<div class="flex flex-row items-center space-x-4">
+				<span class='@(GetTextColor(toast.Type))'>
+					<svg width="32" height="32" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+						@if (toast.Type == ToastType.Success)
+						{
+							<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12ZM16.0303 8.96967C16.3232 9.26256 16.3232 9.73744 16.0303 10.0303L11.0303 15.0303C10.7374 15.3232 10.2626 15.3232 9.96967 15.0303L7.96967 13.0303C7.67678 12.7374 7.67678 12.2626 7.96967 11.9697C8.26256 11.6768 8.73744 11.6768 9.03033 11.9697L10.5 13.4393L12.7348 11.2045L14.9697 8.96967C15.2626 8.67678 15.7374 8.67678 16.0303 8.96967Z"></path>
+						}
+						else if (toast.Type == ToastType.Warning)
+						{
+							<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M5.31171 10.7615C8.23007 5.58716 9.68925 3 12 3C14.3107 3 15.7699 5.58716 18.6883 10.7615L19.0519 11.4063C21.4771 15.7061 22.6897 17.856 21.5937 19.428C20.4978 21 17.7864 21 12.3637 21H11.6363C6.21356 21 3.50217 21 2.40626 19.428C1.31034 17.856 2.52291 15.7061 4.94805 11.4063L5.31171 10.7615ZM12 7.25C12.4142 7.25 12.75 7.58579 12.75 8V13C12.75 13.4142 12.4142 13.75 12 13.75C11.5858 13.75 11.25 13.4142 11.25 13V8C11.25 7.58579 11.5858 7.25 12 7.25ZM12 17C12.5523 17 13 16.5523 13 16C13 15.4477 12.5523 15 12 15C11.4477 15 11 15.4477 11 16C11 16.5523 11.4477 17 12 17Z"></path>
+						}
+						else if (toast.Type == ToastType.Error)
+						{
+							<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12ZM8.96963 8.96965C9.26252 8.67676 9.73739 8.67676 10.0303 8.96965L12 10.9393L13.9696 8.96967C14.2625 8.67678 14.7374 8.67678 15.0303 8.96967C15.3232 9.26256 15.3232 9.73744 15.0303 10.0303L13.0606 12L15.0303 13.9696C15.3232 14.2625 15.3232 14.7374 15.0303 15.0303C14.7374 15.3232 14.2625 15.3232 13.9696 15.0303L12 13.0607L10.0303 15.0303C9.73742 15.3232 9.26254 15.3232 8.96965 15.0303C8.67676 14.7374 8.67676 14.2625 8.96965 13.9697L10.9393 12L8.96963 10.0303C8.67673 9.73742 8.67673 9.26254 8.96963 8.96965Z"></path>
+						}
+						else
+						{
+							<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12ZM12 17.75C12.4142 17.75 12.75 17.4142 12.75 17V11C12.75 10.5858 12.4142 10.25 12 10.25C11.5858 10.25 11.25 10.5858 11.25 11V17C11.25 17.4142 11.5858 17.75 12 17.75ZM12 7C12.5523 7 13 7.44772 13 8C13 8.55228 12.5523 9 12 9C11.4477 9 11 8.55228 11 8C11 7.44772 11.4477 7 12 7Z"></path>
+						}
+					</svg>
+				</span>
+				<div class="flex max-w-64 min-w-6 flex-col text-sm font-semibold">
+					@((MarkupString)toast.Text)
+				</div>
+			</div>
+			<span class="cursor-pointer text-gray-400 transition-all hover:text-red-500" @onclick="() => KillToast(toast)">
+				<svg width="32px" height="32px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+					<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M10.9393 12L6.9696 15.9697L8.03026 17.0304L12 13.0607L15.9697 17.0304L17.0304 15.9697L13.0607 12L17.0303 8.03039L15.9696 6.96973L12 10.9393L8.03038 6.96973L6.96972 8.03039L10.9393 12Z" />
+				</svg>
+			</span>
+		</div>
+	}
+</div>
+
+@code {
+	private List<Toast> _cancelledToasts = new();
+	private List<Toast> _showing = new();
+	private List<Toast> _allToasts = new();
+
+	// These are not a single function so that Tailwind can detect this properly for tree-shaking
+	private string GetOutlineColor(ToastType type) => type switch
+	{
+		ToastType.Success => "outline-lime-500",
+		ToastType.Warning => "outline-amber-500",
+		ToastType.Error => "outline-red-500",
+		_ => "outline-sky-500"
+	};
+
+	private string GetTextColor(ToastType type) => type switch
+	{
+		ToastType.Success => "text-lime-500",
+		ToastType.Warning => "text-amber-500",
+		ToastType.Error => "text-red-500",
+		_ => "text-sky-500"
+	};
+
+	private string GetBgColor(ToastType type) => type switch
+	{
+		ToastType.Success => "bg-lime-50",
+		ToastType.Warning => "bg-amber-50",
+		ToastType.Error => "bg-red-50",
+		_ => "bg-sky-50"
+	};
+
+	public async void RunToast(Toast toast)
+	{
+		_allToasts.Add(toast);
+		await InvokeAsync(StateHasChanged);
+		await Task.Delay(5);
+
+		if (_cancelledToasts.Contains(toast))
+			return;
+
+		_showing.Add(toast);
+		await InvokeAsync(StateHasChanged);
+		await Task.Delay(toast.DurationMilliseconds);
+
+		if (_cancelledToasts.Contains(toast))
+			return;
+
+		await Hide(toast);
+	}
+
+	public async void KillToast(Toast toast)
+	{
+		_cancelledToasts.Add(toast);
+
+		if (_showing.Contains(toast))
+			await Hide(toast);
+		else
+		{
+			_allToasts.Remove(toast);
+			await InvokeAsync(StateHasChanged);
+		}
+	}
+
+	public async Task Hide(Toast toast)
+	{
+		_showing.Remove(toast);
+		await InvokeAsync(StateHasChanged);
+		await Task.Delay(500);
+		_allToasts.Remove(toast);
+		await InvokeAsync(StateHasChanged);
+		_cancelledToasts.Remove(toast);
+	}
+
+	public enum ToastType
+	{
+		Success,
+		Info,
+		Warning,
+		Error
+	}
+
+	public record Toast(string Text, ToastType Type = ToastType.Info, int DurationMilliseconds = 5000)
+	{
+		public Guid Id { get; } = Guid.NewGuid();
+	}
+}

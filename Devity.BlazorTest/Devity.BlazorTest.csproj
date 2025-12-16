@@ -8,6 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="tailwind.extension.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="tailwind.extension.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Devity.Blazor\Devity.Blazor.csproj" />
   </ItemGroup>
 

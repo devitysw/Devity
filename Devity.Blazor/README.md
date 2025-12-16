@@ -1,6 +1,6 @@
 ### Installing the package
 
-You can install either of the provided elements from NuGet using the following command:
+You can install the library before using either of the provided elements from NuGet using the following command:
 
 ```
 Install-Package Devity.Blazor
@@ -23,6 +23,41 @@ I would also suggest adding the following using statement to your main _Imports.
 ### Select
 
 Custom implementation of the HTML select element.
+
+### Toasts
+
+Toasts implementation. Here's a usage example:
+
+```
+<EditForm Model="_testObject" OnValidSubmit="OnValidSubmit">
+	<Name For="() => _testObject.SelectedOption" />
+	<DevitySelect Items="_selectOptions" @bind-Value="_testObject.SelectedOption" />
+
+	<button type="submit">Submit</button>
+</EditForm>
+
+
+@code {
+	[CascadingParameter(Name = Constants.CascadingParameters.Toasts)]
+	public Toasts Toasts { get; set; } = null!;
+
+	private TestObject _testObject = new();
+	private Dictionary<string, Toasts.ToastType?> _selectOptions = new()
+	{
+		{ "Success", Toasts.ToastType.Success },
+		{ "Info", Toasts.ToastType.Info },
+		{ "Warning", Toasts.ToastType.Warning },
+		{ "Error", Toasts.ToastType.Error }
+	};
+
+	private void RunToast(Toasts.ToastType? toastType) => Toasts.RunToast(new("This is just a testing notification to showcase how it can look.", toastType ?? Toasts.ToastType.Info));
+
+	private void OnValidSubmit()
+	{
+		RunToast(_testObject.SelectedOption);
+	}
+}
+```
 
 ## Setup
 
