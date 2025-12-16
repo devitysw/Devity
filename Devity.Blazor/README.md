@@ -1,4 +1,4 @@
-﻿### Installing the package and general setup
+﻿# Installing the package and general setup
 
 You can install the library before using either of the provided elements from NuGet using the following command:
 
@@ -16,7 +16,7 @@ For easier use, add the following to the `_Imports.razor` file for global use.
 
 I would also suggest adding the following using statement to your main _Imports.razor to make referencing the component a bit easier.
 
-### Name
+# Name Component
 
 Name functionality for forms from ASP.NET Core ported over to Blazor.
 
@@ -28,7 +28,7 @@ For easier use, add the following to the `_Imports.razor` file for global use.
 
 I would also suggest adding the following using statement to your main _Imports.razor to make referencing the component a bit easier.
 
-### Select
+# DevitySelect Component
 
 Custom implementation of the HTML select element.
 
@@ -91,7 +91,7 @@ To apply styling, you can target the following classes:
 .devity-select-option label
 ```
 
-### Toasts
+# Toasts Component
 
 Toasts implementation. Here's a usage example:
 
