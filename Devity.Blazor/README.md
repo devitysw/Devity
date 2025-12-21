@@ -136,3 +136,8 @@ And to actually include the component itself in the MainLayout:
     }
 }
 ```
+
+To top of Tailwind CSS file add:
+```
+@source "../Devity.Blazor/**/*.razor";
+```
