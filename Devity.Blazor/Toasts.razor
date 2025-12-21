@@ -1,8 +1,8 @@
-﻿<div class="fixed right-5 bottom-5 z-50 flex flex-col items-end gap-3 transition-all">
+﻿<div class="dv:fixed dv:right-5 dv:bottom-5 dv:z-50 dv:flex dv:flex-col dv:items-end dv:gap-3 dv:transition-all">
 	@foreach (var toast in _allToasts)
 	{
-		<div @key=toast data-active="@(_showing.Contains(toast).ToString())" class="@(GetOutlineColor(toast.Type)) @GetBgColor(toast.Type) flex flex-row items-center justify-between space-x-8 overflow-hidden rounded-md px-4 py-3 shadow outline transition-all duration-500 ease-in-out select-none data-[active=False]:translate-x-[500%]">
-			<div class="flex flex-row items-center space-x-4">
+		<div @key=toast data-active="@(_showing.Contains(toast).ToString())" class="@(GetOutlineColor(toast.Type)) @GetBgColor(toast.Type) dv:flex dv:flex-row dv:items-center dv:justify-between dv:space-x-8 dv:overflow-hidden dv:rounded-md dv:px-4 dv:py-3 dv:shadow dv:outline dv:transition-all dv:duration-500 dv:ease-in-out dv:select-none data-[active=False]:translate-x-[500%]">
+			<div class="dv:flex dv:flex-row dv:items-center dv:space-x-4">
 				<span class='@(GetTextColor(toast.Type))'>
 					<svg width="32" height="32" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 						@if (toast.Type == ToastType.Success)
@@ -23,11 +23,11 @@
 						}
 					</svg>
 				</span>
-				<div class="flex max-w-64 min-w-6 flex-col text-sm font-semibold">
+				<div class="dv:flex dv:max-w-64 dv:min-w-6 dv:flex-col dv:text-sm dv:font-semibold">
 					@((MarkupString)toast.Text)
 				</div>
 			</div>
-			<span class="cursor-pointer text-gray-400 transition-all hover:text-red-500" @onclick="() => KillToast(toast)">
+			<span class="dv:cursor-pointer dv:text-gray-400 dv:transition-all dv:hover:text-red-500" @onclick="() => KillToast(toast)">
 				<svg width="32px" height="32px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 					<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M10.9393 12L6.9696 15.9697L8.03026 17.0304L12 13.0607L15.9697 17.0304L17.0304 15.9697L13.0607 12L17.0303 8.03039L15.9696 6.96973L12 10.9393L8.03038 6.96973L6.96972 8.03039L10.9393 12Z" />
 				</svg>
@@ -44,26 +44,26 @@
 	// These are not a single function so that Tailwind can detect this properly for tree-shaking
 	private string GetOutlineColor(ToastType type) => type switch
 	{
-		ToastType.Success => "outline-lime-500",
-		ToastType.Warning => "outline-amber-500",
-		ToastType.Error => "outline-red-500",
-		_ => "outline-sky-500"
+		ToastType.Success => "dv:outline-lime-500",
+		ToastType.Warning => "dv:outline-amber-500",
+		ToastType.Error => "dv:outline-red-500",
+		_ => "dv:outline-sky-500"
 	};
 
 	private string GetTextColor(ToastType type) => type switch
 	{
-		ToastType.Success => "text-lime-500",
-		ToastType.Warning => "text-amber-500",
-		ToastType.Error => "text-red-500",
-		_ => "text-sky-500"
+		ToastType.Success => "dv:text-lime-500",
+		ToastType.Warning => "dv:text-amber-500",
+		ToastType.Error => "dv:text-red-500",
+		_ => "dv:text-sky-500"
 	};
 
 	private string GetBgColor(ToastType type) => type switch
 	{
-		ToastType.Success => "bg-lime-50",
-		ToastType.Warning => "bg-amber-50",
-		ToastType.Error => "bg-red-50",
-		_ => "bg-sky-50"
+		ToastType.Success => "dv:bg-lime-50",
+		ToastType.Warning => "dv:bg-amber-50",
+		ToastType.Error => "dv:bg-red-50",
+		_ => "dv:bg-sky-50"
 	};
 
 	public async void RunToast(Toast toast)

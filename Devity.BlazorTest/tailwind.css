@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-@source "../Devity.Blazor/**/*.razor";
-
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
