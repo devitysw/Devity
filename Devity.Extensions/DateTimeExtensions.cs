@@ -69,5 +69,8 @@
             DateTime rangeStart,
             DateTime rangeEnd
         ) => target >= rangeStart && target <= rangeEnd;
+
+        public static TimeSpan Sum(this IEnumerable<TimeSpan> times) =>
+            times.Aggregate(TimeSpan.Zero, (t1, t2) => t1 + t2);
     }
 }
