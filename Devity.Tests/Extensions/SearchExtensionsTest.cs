@@ -6,22 +6,23 @@ public class SearchExtensionsTest
     public void HasTest()
     {
         Assert.That("testing123".Has("test"), Is.True);
-        Assert.That("Ahoj, ako sa m·ö?".Has("ahojakosamas"), Is.True);
-        Assert.That("Ahoj, ako sa m·ö?".Has("akosamas"), Is.True);
-        Assert.That("Ahoj, ako sa m·ö?".Has("akosamas?"), Is.True);
-        Assert.That("Ahoj, ako sa m·ö?".Has(",akosamas?"), Is.True);
-        Assert.That("Ahoj, ako sa m·ö?".Has("Ahoj"), Is.True);
-        Assert.That("Ahoj, ako sa m·ö?".Has("ahoj"), Is.True);
-        Assert.That("Ahoj, ako sa m·ö?".Has("ako sa m·ö"), Is.True);
-        Assert.That("Ahoj, ako sa m·ö?".Has("m·ö?"), Is.True);
-        Assert.That("Ahoj, ako sa m·ö?".Has("m·eö?"), Is.False);
-        Assert.That("Ahoj, ako sa m·ö?".Has("bla"), Is.False);
+        Assert.That("Ahoj, ako sa m√°≈°?".Has("ahojakosamas"), Is.True);
+        Assert.That("Ahoj, ako sa m√°≈°?".Has("akosamas"), Is.True);
+        Assert.That("Ahoj, ako sa m√°≈°?".Has("akosamas?"), Is.True);
+        Assert.That("Ahoj, ako sa m√°≈°?".Has(",akosamas?"), Is.True);
+        Assert.That("Ahoj, ako sa m√°≈°?".Has("Ahoj"), Is.True);
+        Assert.That("Ahoj, ako sa m√°≈°?".Has("ahoj"), Is.True);
+        Assert.That("Ahoj, ako sa m√°≈°?".Has("ako sa m√°≈°"), Is.True);
+        Assert.That("Ahoj, ako sa m√°≈°?".Has("m√°≈°?"), Is.True);
+        Assert.That("Ahoj, ako sa m√°≈°?".Has("m√°e≈°?"), Is.False);
+        Assert.That("Ahoj, ako sa m√°≈°?".Has("bla"), Is.False);
         Assert.That("".Has("e"), Is.False);
+        Assert.That("How it‚Äôs done".Has("how it's done"), Is.True);
     }
 
     [Test]
     public void NormalizeForSearchTest()
     {
-        Assert.That("Ahoj, ako sa m·ö?".NormalizeForSearch(), Is.EqualTo("ahojakosamas?"));
+        Assert.That("Ahoj, ako sa m√°≈°?".NormalizeForSearch(), Is.EqualTo("ahojakosamas?"));
     }
 }

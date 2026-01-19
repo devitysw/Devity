@@ -7,16 +7,7 @@
         /// </summary>
         public static bool Has(this string haystack, string needle)
         {
-            if (haystack.Contains(needle))
-                return true;
-
-            string _haystack = haystack.NormalizeForSearch();
-            string _needle = needle.NormalizeForSearch();
-
-            if (_haystack.Contains(_needle))
-                return true;
-
-            return false;
+            return haystack.Contains(needle) || haystack.NormalizeForSearch().Contains(needle.NormalizeForSearch());
         }
 
         /// <summary>
@@ -46,6 +37,7 @@
                 .Replace("ž", "z")
                 .Replace(" ", "")
                 .Replace(".", "")
-                .Replace(",", "");
+                .Replace(",", "")
+                .Replace("’", "'");
     }
 }
