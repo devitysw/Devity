@@ -6,7 +6,7 @@ namespace Devity.Extensions
     public static class QueryableExtensions
     {
         /// <summary>
-        /// DistincyBy for usage in EF Core with pure IQueryable.
+        /// DistinctBy for usage in EF Core with pure IQueryable.
         /// </summary>
         public static IQueryable<TSource> DistinctByDb<TSource, TKey>(
             this IQueryable<TSource> source,
