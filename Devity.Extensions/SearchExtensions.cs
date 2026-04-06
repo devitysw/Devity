@@ -1,4 +1,7 @@
-﻿namespace Devity.Extensions
+﻿using System.Globalization;
+using System.Text;
+
+namespace Devity.Extensions
 {
     public static class SearchExtensions
     {
@@ -11,33 +14,29 @@
         }
 
         /// <summary>
-        /// Creates a normalized version of the provided input. Removing accents, spaces, dots, commas for use in searching.
+        /// Creates a normalized version of the provided input by removing diacritics, spaces, dots, and commas for use in searching.
         /// </summary>
-        public static string NormalizeForSearch(this string input) =>
-            input
-                .ToLower()
-                .Replace("á", "a")
-                .Replace("ä", "a")
-                .Replace("č", "c")
-                .Replace("ď", "d")
-                .Replace("é", "e")
-                .Replace("ě", "e")
-                .Replace("í", "i")
-                .Replace("ľ", "l")
-                .Replace("ĺ", "l")
-                .Replace("ň", "n")
-                .Replace("ó", "o")
-                .Replace("ô", "o")
-                .Replace("ř", "r")
-                .Replace("ŕ", "r")
-                .Replace("š", "s")
-                .Replace("ť", "t")
-                .Replace("ú", "u")
-                .Replace("ý", "y")
-                .Replace("ž", "z")
+        public static string NormalizeForSearch(this string input)
+        {
+            var normalized = input
+                .ToLowerInvariant()
                 .Replace(" ", "")
                 .Replace(".", "")
                 .Replace(",", "")
-                .Replace("’", "'");
+                .Replace("’", "'")
+                .Normalize(NormalizationForm.FormD);
+
+            var builder = new StringBuilder(normalized.Length);
+
+            foreach (var character in normalized)
+            {
+                if (CharUnicodeInfo.GetUnicodeCategory(character) != UnicodeCategory.NonSpacingMark)
+                {
+                    builder.Append(character);
+                }
+            }
+
+            return builder.ToString().Normalize(NormalizationForm.FormC);
+        }
     }
 }
