@@ -26,5 +26,6 @@ public class SearchExtensionsTest
     {
         Assert.That("Ahoj, ako sa máš?".NormalizeForSearch(), Is.EqualTo("ahojakosamas?"));
         Assert.That("kůň".NormalizeForSearch(), Is.EqualTo("kun"));
+        Assert.That("pre-order - post-order - pre–order - post—order".NormalizeForSearch(), Is.EqualTo("preorderpostorderpreorderpostorder"));
     }
 }

@@ -14,7 +14,7 @@ namespace Devity.Extensions
         }
 
         /// <summary>
-        /// Creates a normalized version of the provided input by removing diacritics, spaces, dots, and commas for use in searching.
+        /// Creates a normalized version of the provided input by removing diacritics, spaces, dots, commas, and dashes for use in searching.
         /// </summary>
         public static string NormalizeForSearch(this string input)
         {
@@ -30,7 +30,9 @@ namespace Devity.Extensions
 
             foreach (var character in normalized)
             {
-                if (CharUnicodeInfo.GetUnicodeCategory(character) != UnicodeCategory.NonSpacingMark)
+                var category = CharUnicodeInfo.GetUnicodeCategory(character);
+
+                if (category != UnicodeCategory.NonSpacingMark && category != UnicodeCategory.DashPunctuation)
                 {
                     builder.Append(character);
                 }
