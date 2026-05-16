@@ -1,86 +1,100 @@
-﻿# Installing the package and general setup
+# Devity.Blazor
 
-You can install the library before using either of the provided elements from NuGet using the following command:
+`Devity.Blazor` contains a few reusable Blazor components built for forms and lightweight UI feedback.
 
-```
+## Installation
+
+```powershell
 Install-Package Devity.Blazor
 ```
 
-Or via the Visual Studio package manger.
-
-For easier use, add the following to the `_Imports.razor` file for global use.
-
-```
-@using Devity.Blazor
-```
-
-I would also suggest adding the following using statement to your main _Imports.razor to make referencing the component a bit easier.
-
-# Name Component
-
-Name functionality for forms from ASP.NET Core ported over to Blazor.
-
-For easier use, add the following to the `_Imports.razor` file for global use.
-
-```
-@using Devity.Blazor
-```
-
-I would also suggest adding the following using statement to your main _Imports.razor to make referencing the component a bit easier.
-
-# DevitySelect Component
-
-Custom implementation of the HTML select element.
-
 ## Setup
 
-In the `head` tag add the following css.
+Add the namespace to `_Imports.razor`:
 
+```razor
+@using Devity.Blazor
 ```
+
+Add the package styles to your layout or app host:
+
+```html
 <link href="_content/Devity.Blazor/devity-select.css" rel="stylesheet" />
+<link href="_content/Devity.Blazor/lib.css" rel="stylesheet" />
 ```
 
-## Example
+`lib.css` contains the shared generated utility styles used by `Toasts`.
 
-```
-<DevitySelect Items="_options" TValue="FetchedType?" @bind-Value="_selectedValue" @bind-Value:after="OnValueSelected" />
+## Components
+
+### `Name<TValue>`
+
+`Name` renders a `<label>` from a property expression. It uses `DisplayAttribute.Name` when present and otherwise falls back to the property name.
+
+```razor
+<EditForm Model="_model">
+    <Name For="() => _model.FirstName" class="form-label" />
+    <InputText @bind-Value="_model.FirstName" class="form-control" />
+</EditForm>
 
 @code {
-    private Dictionary<string, FetchedType?> _options = new();
-    private FetchedType? _selectedValue;
+    private PersonForm _model = new();
 
-    protected override void OnInitialized() 
+    public sealed class PersonForm
     {
-        _options.Add(string.Empty, null);
-        foreach(var value in Enum.GetValues<FetchedType>())
-        {
-            _options.Add(value.GetDisplayName(), value);
-        }
-    }
-
-    private async void OnValueSelected()
-    {
-        // TODO: Callback
+        [Display(Name = "First name")]
+        public string FirstName { get; set; } = string.Empty;
     }
 }
 ```
 
-Enum class used in the example:
-```
-public enum FetchedType
-{
-    [Display(Name = "Example 1")]
-    Example1,
+Notes:
 
-    [Display(Name = "Example 2")]
-    Example2
+- `For` is required.
+- Extra HTML attributes are passed through to the rendered `<label>`.
+
+### `DevitySelect<TValue>`
+
+`DevitySelect` is a custom select component backed by a `Dictionary<string, TValue?>`, where the dictionary key is the text shown to the user.
+
+```razor
+<DevitySelect Items="_options"
+              @bind-Value="_selectedValue"
+              DefaultShowcasedText="Choose a value" />
+
+@code {
+    private Dictionary<string, Status?> _options = new()
+    {
+        { string.Empty, null },
+        { "Success", Status.Success },
+        { "Warning", Status.Warning },
+        { "Error", Status.Error }
+    };
+
+    private Status? _selectedValue;
+
+    public enum Status
+    {
+        Success,
+        Warning,
+        Error
+    }
 }
 ```
 
-## Styling
+Supported parameters:
 
-To apply styling, you can target the following classes:
-```
+- `Items`: required options dictionary
+- `Value`, `ValueChanged`, `ValueExpression`: standard bindable value parameters
+- `DefaultShowcasedText`: placeholder text when nothing is selected
+- `Style`: inline style applied to the root element
+- `OnOpen`: callback invoked when the dropdown opens
+- `OnClosed`: callback invoked after the close animation finishes
+- `ConvertMethod`: optional conversion function before assigning `Value`
+
+Styling hooks:
+
+```css
 .devity-select
 .devity-select-toggle
 .devity-select-value
@@ -91,37 +105,17 @@ To apply styling, you can target the following classes:
 .devity-select-option label
 ```
 
-# Toasts Component
+### `Toasts`
 
-Toasts implementation. Here's a usage example:
+`Toasts` renders temporary notifications with built-in success, info, warning, and error styles.
 
-```
-<button @onclick="() => RunToast("This is just a testing notification to showcase how it can look.", Toasts.ToastType.Success)">Show Info Toast</button>
+Add the component near the root of your layout and cascade it to descendants:
 
-@code {
-	[CascadingParameter(Name = "Toasts")]
-	public Toasts Toasts { get; set; } = null!;
-
-	private void RunToast(Toasts.ToastType? toastType) => Toasts.RunToast(new("This is just a testing notification to showcase how it can look.", toastType ?? Toasts.ToastType.Info));
-}
-```
-
-And to actually include the component itself in the MainLayout:
-```
-<Toasts @ref="_toasts"/>
+```razor
+<Toasts @ref="_toasts" />
 
 <CascadingValue Value="_toasts" Name="Toasts">
-    <div class="page">
-        <div class="sidebar">
-            <NavMenu />
-        </div>
-
-        <main>
-            <article class="content px-4">
-                @Body
-            </article>
-        </main>
-    </div>
+    @Body
 </CascadingValue>
 
 @code {
@@ -129,7 +123,7 @@ And to actually include the component itself in the MainLayout:
 
     protected override void OnAfterRender(bool firstRender)
     {
-        if(firstRender)
+        if (firstRender)
         {
             StateHasChanged();
         }
@@ -137,8 +131,37 @@ And to actually include the component itself in the MainLayout:
 }
 ```
 
-In the `head` tag add the following css.
+Use it from a child component:
 
+```razor
+<button @onclick="ShowToast">Show toast</button>
+
+@code {
+    [CascadingParameter(Name = "Toasts")]
+    public Toasts Toasts { get; set; } = null!;
+
+    private void ShowToast()
+    {
+        Toasts.RunToast(new Toasts.Toast(
+            "Saved successfully.",
+            Toasts.ToastType.Success,
+            3000));
+    }
+}
 ```
-<link href="_content/Devity.Blazor/lib.css" rel="stylesheet" />
+
+Available types:
+
+- `Toasts.ToastType.Success`
+- `Toasts.ToastType.Info`
+- `Toasts.ToastType.Warning`
+- `Toasts.ToastType.Error`
+
+## Local stylesheet build
+
+When developing this package locally, rebuild the generated stylesheet after changing `app.css`:
+
+```bash
+npm install
+npm run build:css
 ```
