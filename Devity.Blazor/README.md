@@ -165,26 +165,77 @@ Styling hooks:
 
 For inherited dialog components, use `DialogBase`:
 
+`EditNameDialog.razor`
+
 ```razor
 @inherits DialogBase
 
-<DevityDialog @ref="Dialog" Title="Edit item" OnSubmitAttempted="Save">
-    <InputText @bind-Value="_name" @ref="FocusElement" />
+<DevityDialog @ref="Dialog"
+              Title="Edit name"
+              SubmitButtonText="Save"
+              OnSubmitAttempted="Save">
+    <EditForm Model="_model">
+        <Name For="() => _model.Name" class="form-label" />
+        <InputText @bind-Value="_model.Name" class="form-control" @ref="FocusElement" />
+    </EditForm>
 </DevityDialog>
 
 @code {
-    private string _name = string.Empty;
+    [Parameter]
+    public EventCallback<string> OnSubmit { get; set; }
+
+    private EditNameModel _model = new();
 
     public void Open(string name)
     {
-        _name = name;
+        _model = new()
+        {
+            Name = name
+        };
+
         base.Open();
     }
 
     private async Task Save()
     {
+        await OnSubmit.InvokeAsync(_model.Name);
+
         if (Dialog is not null)
             await Dialog.Close();
+    }
+
+    private sealed class EditNameModel
+    {
+        public string Name { get; set; } = string.Empty;
+    }
+}
+```
+
+`ExamplePage.razor`
+
+```razor
+@page "/dialog-example"
+
+<h1>Dialog example</h1>
+
+<p>Current name: @_name</p>
+
+<button type="button" @onclick="OpenDialog">Edit name</button>
+
+<EditNameDialog @ref="_editNameDialog" OnSubmit="SaveName" />
+
+@code {
+    private EditNameDialog? _editNameDialog;
+    private string _name = "Example";
+
+    private void OpenDialog()
+    {
+        _editNameDialog?.Open(_name);
+    }
+
+    private void SaveName(string name)
+    {
+        _name = name;
     }
 }
 ```
