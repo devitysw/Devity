@@ -1,0 +1,66 @@
+@inherits DialogBase
+
+<DevityDialog @ref="Dialog"
+              Title="Abstract dialog example"
+              SubmitButtonText="Save"
+              CancelButtonText="Dismiss"
+              OnSubmitAttempted="Save"
+              OnCancel="Cancel"
+              Large>
+    <EditForm Model="_model">
+        <div class="mb-3">
+            <Name For="() => _model.Text" class="form-label" />
+            <InputText @bind-Value="_model.Text" class="form-control" @ref="FocusElement" />
+        </div>
+
+        <div class="mb-3">
+            <Name For="() => _model.SelectedOption" class="form-label" />
+            <DevitySelect Items="_selectOptions" @bind-Value="_model.SelectedOption" />
+        </div>
+    </EditForm>
+</DevityDialog>
+
+@code {
+    [Parameter]
+    public EventCallback<TestObject> OnSubmit { get; set; }
+
+    [Parameter]
+    public EventCallback OnDismissed { get; set; }
+
+    private TestObject _model = new();
+    private Dictionary<string, Toasts.ToastType?> _selectOptions = new()
+    {
+        { "Success", Toasts.ToastType.Success },
+        { "Info", Toasts.ToastType.Info },
+        { "Warning", Toasts.ToastType.Warning },
+        { "Error", Toasts.ToastType.Error }
+    };
+
+    public void Open(TestObject testObject)
+    {
+        _model = new()
+        {
+            Text = testObject.Text,
+            SelectedOption = testObject.SelectedOption
+        };
+
+        base.Open();
+    }
+
+    private async Task Save()
+    {
+        await OnSubmit.InvokeAsync(new TestObject
+        {
+            Text = _model.Text,
+            SelectedOption = _model.SelectedOption
+        });
+
+        if (Dialog is not null)
+            await Dialog.Close();
+    }
+
+    private async Task Cancel()
+    {
+        await OnDismissed.InvokeAsync();
+    }
+}

@@ -1,0 +1,231 @@
+@namespace Devity.Blazor
+@using Microsoft.AspNetCore.Components
+
+@if (_triggeredShow)
+{
+    <FocusTrap id="@Id"
+               Active="_shown"
+               Class="@OverlayCssClass"
+               data-active="@_shown.ToString()"
+               @attributes="AdditionalAttributes"
+               @onmousedown="CancelFromOverlay"
+               @onkeydown="OnKeyDown">
+        <div role="dialog"
+             aria-modal="true"
+             aria-labelledby="@(string.IsNullOrWhiteSpace(Title) ? null : _titleId)"
+             data-active="@_shown.ToString()"
+             class="@DialogCssClass"
+             @onmousedown:stopPropagation="true">
+            @if (ShowHeader)
+            {
+                <section class="devity-dialog-header">
+                    @if (HeaderContent is not null)
+                    {
+                        @HeaderContent
+                    }
+                    else
+                    {
+                        <h5 id="@_titleId" class="devity-dialog-title">@Title</h5>
+                    }
+
+                    @if (ShowCloseButton)
+                    {
+                        <button type="button" class="devity-dialog-close-button" title="@CloseButtonTitle" aria-label="@CloseButtonTitle" @onclick="Cancel">
+                            @if (CloseButtonContent is not null)
+                            {
+                                @CloseButtonContent
+                            }
+                            else
+                            {
+                                <svg class="dv:size-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <path d="M5 5L15 15M15 5L5 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            }
+                        </button>
+                    }
+                </section>
+            }
+
+            <section @ref="_body" class="devity-dialog-body" tabindex="-1">
+                @ChildContent
+            </section>
+
+            @if (ShowFooter)
+            {
+                <section class="devity-dialog-footer">
+                    @if (FooterContent is not null)
+                    {
+                        @FooterContent
+                    }
+                    else
+                    {
+                        <button type="button" class="devity-dialog-cancel-button" @onclick="Cancel">@CancelButtonText</button>
+                        <button type="button" class="@(DangerSubmit ? "devity-dialog-submit-button devity-dialog-submit-button-danger" : "devity-dialog-submit-button")" @onclick="Submit">@SubmitButtonText</button>
+                    }
+                </section>
+            }
+        </div>
+    </FocusTrap>
+}
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public required RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? HeaderContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? FooterContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? CloseButtonContent { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    [Parameter]
+    public EventCallback OnSubmitAttempted { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    [Parameter]
+    public EventCallback OnShown { get; set; }
+
+    [Parameter]
+    public bool ShowHeader { get; set; } = true;
+
+    [Parameter]
+    public bool ShowFooter { get; set; } = true;
+
+    [Parameter]
+    public bool ShowCloseButton { get; set; } = true;
+
+    [Parameter]
+    public bool CloseOnOverlayClick { get; set; } = true;
+
+    [Parameter]
+    public bool CloseOnEscape { get; set; } = true;
+
+    [Parameter]
+    public bool SubmitOnEnter { get; set; }
+
+    [Parameter]
+    public bool Large { get; set; }
+
+    [Parameter]
+    public bool FullWidth { get; set; }
+
+    [Parameter]
+    public bool DangerSubmit { get; set; }
+
+    [Parameter]
+    public string CancelButtonText { get; set; } = "Cancel";
+
+    [Parameter]
+    public string SubmitButtonText { get; set; } = "Submit";
+
+    [Parameter]
+    public string CloseButtonTitle { get; set; } = "Close";
+
+    [Parameter]
+    public string OverlayClass { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+
+    [Parameter]
+    public int AnimationMilliseconds { get; set; } = 200;
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    public bool IsOpen => _triggeredShow;
+    public bool IsShown => _shown;
+
+    private bool _triggeredShow;
+    private bool _shown;
+    private readonly string _titleId = $"devity-dialog-title-{Guid.NewGuid():N}";
+    private ElementReference _body;
+
+    private string OverlayCssClass => string.Join(' ', new[]
+    {
+        "devity-dialog-overlay",
+        OverlayClass
+    }.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+    private string DialogCssClass => string.Join(' ', new[]
+    {
+        "devity-dialog-panel",
+        FullWidth ? "devity-dialog-panel-full-width" : Large ? "devity-dialog-panel-large" : string.Empty,
+        Class
+    }.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+    public async Task Show()
+    {
+        if (!_triggeredShow)
+        {
+            _triggeredShow = true;
+            _shown = false;
+            await InvokeAsync(StateHasChanged);
+            await Task.Delay(50);
+        }
+
+        _shown = true;
+        await InvokeAsync(StateHasChanged);
+        await OnShown.InvokeAsync();
+    }
+
+    public async Task Close()
+    {
+        if (!_triggeredShow)
+            return;
+
+        _shown = false;
+        await InvokeAsync(StateHasChanged);
+        await Task.Delay(AnimationMilliseconds);
+        _triggeredShow = false;
+        await InvokeAsync(StateHasChanged);
+        await OnClose.InvokeAsync();
+    }
+
+    public async Task Cancel()
+    {
+        await OnCancel.InvokeAsync();
+        await Close();
+    }
+
+    public async Task Submit()
+    {
+        await OnSubmitAttempted.InvokeAsync();
+    }
+
+    private async Task CancelFromOverlay()
+    {
+        if (CloseOnOverlayClick)
+            await Cancel();
+    }
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape" && CloseOnEscape)
+        {
+            await Cancel();
+            return;
+        }
+
+        if (e.Key == "Enter" && SubmitOnEnter)
+        {
+            await _body.FocusAsync();
+            await Submit();
+        }
+    }
+
+}

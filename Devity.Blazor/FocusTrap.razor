@@ -1,0 +1,74 @@
+@namespace Devity.Blazor
+@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+
+<div @ref="_container"
+     class="@Class"
+     tabindex="@TabIndex"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public required RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public bool Active { get; set; } = true;
+
+    [Parameter]
+    public bool FocusOnActivate { get; set; } = true;
+
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
+
+    [Parameter]
+    public int TabIndex { get; set; } = -1;
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private bool _active;
+    private ElementReference _container;
+    private IJSObjectReference? _focusTrapModule;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (Active == _active)
+            return;
+
+        if (Active)
+            await Activate();
+        else
+            await Deactivate();
+    }
+
+    private async Task Activate()
+    {
+        _focusTrapModule ??= await JSRuntime.InvokeAsync<IJSObjectReference?>("import", "./_content/Devity.Blazor/devity-focus-trap.js");
+
+        if (_focusTrapModule is null)
+            return;
+
+        await _focusTrapModule.InvokeVoidAsync("activateFocusTrap", _container, FocusOnActivate);
+        _active = true;
+    }
+
+    private async Task Deactivate()
+    {
+        if (_focusTrapModule is not null)
+            await _focusTrapModule.InvokeVoidAsync("deactivateFocusTrap", _container);
+
+        _active = false;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_focusTrapModule is null)
+            return;
+
+        await Deactivate();
+        await _focusTrapModule.DisposeAsync();
+    }
+}

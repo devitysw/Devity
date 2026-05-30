@@ -16,11 +16,17 @@ Welcome to your new app.
 	<button type="submit">Submit</button>
 </EditForm>
 
+<div class="mt-4">
+	<button type="button" class="btn btn-primary" @onclick="OpenDialog">Open dialog example</button>
+</div>
+
+<TestObjectDialog @ref="_dialog" OnSubmit="SaveDialog" OnDismissed="CancelDialog" />
 
 @code {
 	[CascadingParameter(Name = Constants.CascadingParameters.Toasts)]
 	public Toasts Toasts { get; set; } = null!;
 
+	private TestObjectDialog? _dialog;
 	private TestObject _testObject = new();
 	private Dictionary<string, Toasts.ToastType?> _selectOptions = new()
 	{
@@ -36,4 +42,22 @@ Welcome to your new app.
 	{
 		RunToast(_testObject.SelectedOption);
 	}
+
+	private void OpenDialog()
+	{
+		_dialog?.Open(_testObject);
+	}
+
+	private void SaveDialog(TestObject testObject)
+	{
+		_testObject.Text = testObject.Text;
+		_testObject.SelectedOption = testObject.SelectedOption;
+		RunToast(testObject.SelectedOption);
+	}
+
+	private void CancelDialog()
+	{
+		Toasts.RunToast(new("Dialog was dismissed.", Toasts.ToastType.Info));
+	}
+
 }

@@ -23,7 +23,18 @@ Add the package styles to your layout or app host:
 <link href="_content/Devity.Blazor/lib.css" rel="stylesheet" />
 ```
 
-`lib.css` contains the shared generated utility styles used by `Toasts`.
+`lib.css` contains the shared generated utility styles used by `DevityDialog` and `Toasts`.
+
+Optional primary color override:
+
+```css
+:root {
+    --devity-primary-color: #7c3aed;
+    --devity-primary-hover-color: #6d28d9;
+}
+```
+
+`DevityDialog` uses this primary color for its default submit button.
 
 ## Components
 
@@ -104,6 +115,137 @@ Styling hooks:
 .devity-select-option input
 .devity-select-option label
 ```
+
+### `DevityDialog`
+
+`DevityDialog` renders a reusable modal dialog with overlay fade and panel slide animations. Reference the component and call `Show`, `Close`, `Cancel`, or `Submit` from your component code.
+
+```razor
+<DevityDialog @ref="_dialog"
+              Title="Add label"
+              OnSubmitAttempted="Save"
+              OnCancel="Reset"
+              Large>
+    <EditForm Model="_model">
+        <InputText @bind-Value="_model.Name" class="form-control" />
+    </EditForm>
+</DevityDialog>
+
+<button type="button" @onclick="Open">Open</button>
+
+@code {
+    private DevityDialog? _dialog;
+    private LabelModel _model = new();
+
+    private async Task Open()
+    {
+        _model = new();
+
+        if (_dialog is not null)
+            await _dialog.Show();
+    }
+
+    private async Task Save()
+    {
+        if (_dialog is not null)
+            await _dialog.Close();
+    }
+
+    private void Reset()
+    {
+        _model = new();
+    }
+
+    private sealed class LabelModel
+    {
+        public string Name { get; set; } = string.Empty;
+    }
+}
+```
+
+For inherited dialog components, use `DialogBase`:
+
+```razor
+@inherits DialogBase
+
+<DevityDialog @ref="Dialog" Title="Edit item" OnSubmitAttempted="Save">
+    <InputText @bind-Value="_name" @ref="FocusElement" />
+</DevityDialog>
+
+@code {
+    private string _name = string.Empty;
+
+    public void Open(string name)
+    {
+        _name = name;
+        base.Open();
+    }
+
+    private async Task Save()
+    {
+        if (Dialog is not null)
+            await Dialog.Close();
+    }
+}
+```
+
+Supported parameters:
+
+- `Title`: title text used by the default header
+- `ChildContent`: required dialog body content
+- `HeaderContent`, `FooterContent`, `CloseButtonContent`: optional custom regions
+- `OnShown`, `OnCancel`, `OnClose`, `OnSubmitAttempted`: lifecycle callbacks
+- `ShowHeader`, `ShowFooter`, `ShowCloseButton`: toggle default regions and close button
+- `CloseOnOverlayClick`, `CloseOnEscape`, `SubmitOnEnter`: keyboard and overlay behavior
+- `Large`, `FullWidth`, `DangerSubmit`: default layout and submit button variants
+- `CancelButtonText`, `SubmitButtonText`, `CloseButtonTitle`: default control text
+- `Class`: extra classes applied to the dialog panel
+- `OverlayClass`: extra classes applied to the overlay
+- `AnimationMilliseconds`: close animation delay before the dialog is removed
+
+Styling hooks:
+
+```css
+.devity-dialog-overlay
+.devity-dialog-panel
+.devity-dialog-header
+.devity-dialog-title
+.devity-dialog-body
+.devity-dialog-footer
+.devity-dialog-close-button
+.devity-dialog-cancel-button
+.devity-dialog-submit-button
+.devity-dialog-submit-button-danger
+```
+
+Override those classes in your app stylesheet for app-specific spacing, buttons, widths, colors, or stacking behavior such as `z-index`.
+
+Keyboard behavior:
+
+- `Tab` and `Shift+Tab` are trapped inside the open dialog.
+- `Escape` cancels the dialog when `CloseOnEscape` is `true`.
+- `Enter` invokes `OnSubmitAttempted` when `SubmitOnEnter` is `true`.
+
+### `FocusTrap`
+
+`FocusTrap` keeps keyboard focus inside its content while `Active` is `true`. It is used by `DevityDialog`, but can also wrap custom popovers, drawers, or other modal UI.
+
+```razor
+<FocusTrap Active="_open" Class="my-overlay">
+    <div class="my-panel">
+        <button type="button">First action</button>
+        <button type="button">Second action</button>
+    </div>
+</FocusTrap>
+```
+
+Supported parameters:
+
+- `ChildContent`: required trapped content
+- `Active`: enables or disables the trap
+- `FocusOnActivate`: focuses the first input, first focusable element, or trap container when activated
+- `Class`: classes applied to the trap container
+- `TabIndex`: trap container tabindex, defaults to `-1`
 
 ### `Toasts`
 

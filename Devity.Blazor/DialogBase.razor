@@ -1,0 +1,39 @@
+@namespace Devity.Blazor
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+
+@code {
+    protected object? FocusElement { get; set; }
+
+    protected DevityDialog? Dialog { get; set; }
+
+    public virtual void Open()
+    {
+        _ = OpenAsync();
+    }
+
+    public virtual async Task OpenAsync()
+    {
+        if (Dialog is null)
+            return;
+
+        OnOpen();
+        await Dialog.Show();
+
+        var element = FocusElement switch
+        {
+            InputText inputText => inputText.Element,
+            InputTextArea inputTextArea => inputTextArea.Element,
+            ElementReference elementReference => elementReference,
+            _ => null
+        };
+
+        if (element.HasValue)
+            await element.Value.FocusAsync();
+    }
+
+    protected virtual void OnOpen()
+    {
+    }
+
+}

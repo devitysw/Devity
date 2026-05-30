@@ -1,3 +1,96 @@
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme) prefix(dv);
 @import "tailwindcss/utilities.css" layer(utilities) prefix(dv);
+
+@theme {
+    --color-primary: var(--devity-primary-color, #0284c7);
+    --color-primary-hover: var(--devity-primary-hover-color, #0369a1);
+}
+
+.devity-dialog-overlay {
+    @apply dv:fixed dv:inset-0 dv:flex dv:h-dvh dv:w-screen dv:items-center dv:justify-center dv:bg-black/0 dv:p-5 dv:transition-all dv:ease-in-out dv:outline-none;
+    z-index: 1050;
+}
+
+.devity-dialog-overlay[data-active="True"] {
+    background-color: rgb(0 0 0 / 40%);
+}
+
+.devity-dialog-panel {
+    @apply dv:flex dv:max-h-[90dvh] dv:w-full dv:max-w-lg dv:flex-col dv:divide-y dv:divide-gray-200 dv:overflow-hidden dv:rounded-lg dv:bg-white/0 dv:shadow-xl dv:transition-all dv:ease-in-out;
+    transform: translateY(500%);
+}
+
+.devity-dialog-panel-large {
+    @apply dv:max-w-3xl;
+}
+
+.devity-dialog-panel-full-width {
+    @apply dv:max-w-full;
+}
+
+.devity-dialog-panel[data-active="True"] {
+    background-color: rgb(255 255 255 / 100%);
+    transform: translateY(0);
+}
+
+.devity-dialog-header {
+    @apply dv:flex dv:items-center dv:justify-between dv:gap-10 dv:px-7 dv:py-3;
+}
+
+.devity-dialog-title {
+    @apply dv:m-0 dv:text-lg dv:font-semibold dv:text-gray-900;
+}
+
+.devity-dialog-body {
+    @apply dv:max-h-[80dvh] dv:overflow-y-auto dv:px-7 dv:py-5;
+}
+
+.devity-dialog-footer {
+    @apply dv:flex dv:justify-end dv:gap-5 dv:px-7 dv:py-5;
+}
+
+.devity-dialog-close-button {
+    @apply dv:inline-flex dv:size-7 dv:cursor-pointer dv:appearance-none dv:items-center dv:justify-center dv:rounded-full dv:border-0 dv:bg-transparent dv:p-0 dv:text-gray-500 dv:transition-all;
+}
+
+.devity-dialog-close-button:hover {
+    @apply dv:bg-gray-100 dv:text-gray-900;
+}
+
+.devity-dialog-close-button:focus {
+    @apply dv:outline-none;
+}
+
+.devity-dialog-close-button:focus-visible {
+    @apply dv:bg-gray-100 dv:text-gray-900;
+}
+
+.devity-dialog-cancel-button,
+.devity-dialog-submit-button {
+    @apply dv:cursor-pointer dv:appearance-none dv:rounded-md dv:border-0 dv:px-5 dv:py-2 dv:transition-all;
+}
+
+.devity-dialog-cancel-button {
+    @apply dv:bg-gray-100 dv:text-gray-900;
+}
+
+.devity-dialog-cancel-button:hover {
+    @apply dv:bg-gray-200;
+}
+
+.devity-dialog-submit-button {
+    @apply dv:bg-primary dv:text-white;
+}
+
+.devity-dialog-submit-button:hover {
+    @apply dv:bg-primary-hover;
+}
+
+.devity-dialog-submit-button-danger {
+    @apply dv:bg-red-600;
+}
+
+.devity-dialog-submit-button-danger:hover {
+    @apply dv:bg-red-700;
+}
