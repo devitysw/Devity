@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace Devity.Extensions.Templates;
 
 public static class TemplateHelper
@@ -63,7 +65,24 @@ public static class TemplateHelper
                     {
                         target = target.Replace(
                             key.Key,
-                            key.Value.Compile().DynamicInvoke(obj).ToString()
+                            WebUtility.HtmlEncode(key.Value.Compile().DynamicInvoke(obj)?.ToString())
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(
+                            $"Failed to replace value of key {key.Key}. Underlying exception: {ex}"
+                        );
+                    }
+                }
+
+                foreach (var key in loop.Value.RawKeyMap)
+                {
+                    try
+                    {
+                        target = target.Replace(
+                            key.Key,
+                            key.Value.Compile().DynamicInvoke(obj)?.ToString()
                         );
                     }
                     catch (Exception ex)
@@ -82,6 +101,9 @@ public static class TemplateHelper
         }
 
         foreach (var dataPoint in template.KeyMap)
+            html = html.Replace(dataPoint.Key, WebUtility.HtmlEncode(dataPoint.Value));
+
+        foreach (var dataPoint in template.RawKeyMap)
             html = html.Replace(dataPoint.Key, dataPoint.Value ?? string.Empty);
 
         return html;
