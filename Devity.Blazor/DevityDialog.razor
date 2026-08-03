@@ -1,5 +1,7 @@
 @namespace Devity.Blazor
+@inherits LocalizedComponentBase
 @using Microsoft.AspNetCore.Components
+@using Microsoft.Extensions.Localization
 
 @if (_triggeredShow)
 {
@@ -31,7 +33,7 @@
 
                         @if (ShowCloseButton)
                         {
-                            <button type="button" class="devity-dialog-close-button" title="@CloseButtonTitle" aria-label="@CloseButtonTitle" @onclick="Cancel">
+                            <button type="button" class="devity-dialog-close-button" title="@ResolvedCloseButtonTitle" aria-label="@ResolvedCloseButtonTitle" @onclick="Cancel">
                                 @if (CloseButtonContent is not null)
                                 {
                                     @CloseButtonContent
@@ -60,15 +62,15 @@
                         }
                         else
                         {
-                            <button type="button" class="devity-dialog-cancel-button" disabled="@_isSubmitting" @onclick="Cancel">@CancelButtonText</button>
+                            <button type="button" class="devity-dialog-cancel-button" disabled="@_isSubmitting" @onclick="Cancel">@ResolvedCancelButtonText</button>
                             <button type="button" class="@(DangerSubmit ? "devity-dialog-submit-button devity-dialog-submit-button-danger" : "devity-dialog-submit-button")" disabled="@_isSubmitting" @onclick="Submit">
                                 @if (_isSubmitting)
                                 {
-                                    <span class="devity-dialog-spinner" role="status" aria-label="Loading"></span>
+                                    <span class="devity-dialog-spinner" role="status" aria-label="@ResolvedLoadingLabel"></span>
                                 }
                                 else
                                 {
-                                    @SubmitButtonText
+                                    @ResolvedSubmitButtonText
                                 }
                             </button>
                         }
@@ -137,14 +139,20 @@
     [Parameter]
     public bool DangerSubmit { get; set; }
 
+    /// <summary>
+    /// Overrides the localized default. Leave unset to use the current UI culture's translation
+    /// (falls back to English if no <see cref="IStringLocalizer{T}"/> is registered by the host app).
+    /// </summary>
     [Parameter]
-    public string CancelButtonText { get; set; } = "Cancel";
+    public string? CancelButtonText { get; set; }
 
+    /// <inheritdoc cref="CancelButtonText"/>
     [Parameter]
-    public string SubmitButtonText { get; set; } = "Submit";
+    public string? SubmitButtonText { get; set; }
 
+    /// <inheritdoc cref="CancelButtonText"/>
     [Parameter]
-    public string CloseButtonTitle { get; set; } = "Close";
+    public string? CloseButtonTitle { get; set; }
 
     [Parameter]
     public string OverlayClass { get; set; } = string.Empty;
@@ -168,6 +176,11 @@
     private bool _hasOpenOverlay;
     private readonly string _titleId = $"devity-dialog-title-{Guid.NewGuid():N}";
     private ElementReference _body;
+
+    private string ResolvedCancelButtonText => CancelButtonText ?? Localize("Cancel");
+    private string ResolvedSubmitButtonText => SubmitButtonText ?? Localize("Submit");
+    private string ResolvedCloseButtonTitle => CloseButtonTitle ?? Localize("Close");
+    private string ResolvedLoadingLabel => Localize("Loading");
 
     private string OverlayCssClass => string.Join(' ', new[]
     {
