@@ -49,6 +49,9 @@
 
     private async Task Save()
     {
+        // Artificial delay so DevityDialog's built-in submit-loading spinner is visible to click through.
+        await Task.Delay(1500);
+
         await OnSubmit.InvokeAsync(new TestObject
         {
             Text = _model.Text,

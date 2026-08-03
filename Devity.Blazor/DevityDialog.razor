@@ -3,69 +3,80 @@
 
 @if (_triggeredShow)
 {
-    <FocusTrap id="@Id"
-               Active="_shown"
-               Class="@OverlayCssClass"
-               data-active="@_shown.ToString()"
-               @attributes="AdditionalAttributes"
-               @onmousedown="CancelFromOverlay"
-               @onkeydown="OnKeyDown">
-        <div role="dialog"
-             aria-modal="true"
-             aria-labelledby="@(string.IsNullOrWhiteSpace(Title) ? null : _titleId)"
-             data-active="@_shown.ToString()"
-             class="@DialogCssClass"
-             @onmousedown:stopPropagation="true">
-            @if (ShowHeader)
-            {
-                <section class="devity-dialog-header">
-                    @if (HeaderContent is not null)
-                    {
-                        @HeaderContent
-                    }
-                    else
-                    {
-                        <h5 id="@_titleId" class="devity-dialog-title">@Title</h5>
-                    }
+    <CascadingValue Value="this">
+        <FocusTrap id="@Id"
+                   Active="_shown"
+                   Class="@OverlayCssClass"
+                   data-active="@_shown.ToString()"
+                   @attributes="AdditionalAttributes"
+                   @onmousedown="CancelFromOverlay"
+                   @onkeydown="OnKeyDown">
+            <div role="dialog"
+                 aria-modal="true"
+                 aria-labelledby="@(string.IsNullOrWhiteSpace(Title) ? null : _titleId)"
+                 data-active="@_shown.ToString()"
+                 class="@DialogCssClass"
+                 @onmousedown:stopPropagation="true">
+                @if (ShowHeader)
+                {
+                    <section class="devity-dialog-header">
+                        @if (HeaderContent is not null)
+                        {
+                            @HeaderContent
+                        }
+                        else
+                        {
+                            <h5 id="@_titleId" class="devity-dialog-title">@Title</h5>
+                        }
 
-                    @if (ShowCloseButton)
-                    {
-                        <button type="button" class="devity-dialog-close-button" title="@CloseButtonTitle" aria-label="@CloseButtonTitle" @onclick="Cancel">
-                            @if (CloseButtonContent is not null)
-                            {
-                                @CloseButtonContent
-                            }
-                            else
-                            {
-                                <svg class="dv:size-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                    <path d="M5 5L15 15M15 5L5 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
-                                </svg>
-                            }
-                        </button>
-                    }
+                        @if (ShowCloseButton)
+                        {
+                            <button type="button" class="devity-dialog-close-button" title="@CloseButtonTitle" aria-label="@CloseButtonTitle" @onclick="Cancel">
+                                @if (CloseButtonContent is not null)
+                                {
+                                    @CloseButtonContent
+                                }
+                                else
+                                {
+                                    <svg class="dv:size-5" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                        <path d="M5 5L15 15M15 5L5 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                }
+                            </button>
+                        }
+                    </section>
+                }
+
+                <section @ref="_body" class="devity-dialog-body" tabindex="-1">
+                    @ChildContent
                 </section>
-            }
 
-            <section @ref="_body" class="devity-dialog-body" tabindex="-1">
-                @ChildContent
-            </section>
-
-            @if (ShowFooter)
-            {
-                <section class="devity-dialog-footer">
-                    @if (FooterContent is not null)
-                    {
-                        @FooterContent
-                    }
-                    else
-                    {
-                        <button type="button" class="devity-dialog-cancel-button" @onclick="Cancel">@CancelButtonText</button>
-                        <button type="button" class="@(DangerSubmit ? "devity-dialog-submit-button devity-dialog-submit-button-danger" : "devity-dialog-submit-button")" @onclick="Submit">@SubmitButtonText</button>
-                    }
-                </section>
-            }
-        </div>
-    </FocusTrap>
+                @if (ShowFooter)
+                {
+                    <section class="devity-dialog-footer">
+                        @if (FooterContent is not null)
+                        {
+                            @FooterContent
+                        }
+                        else
+                        {
+                            <button type="button" class="devity-dialog-cancel-button" disabled="@_isSubmitting" @onclick="Cancel">@CancelButtonText</button>
+                            <button type="button" class="@(DangerSubmit ? "devity-dialog-submit-button devity-dialog-submit-button-danger" : "devity-dialog-submit-button")" disabled="@_isSubmitting" @onclick="Submit">
+                                @if (_isSubmitting)
+                                {
+                                    <span class="devity-dialog-spinner" role="status" aria-label="Loading"></span>
+                                }
+                                else
+                                {
+                                    @SubmitButtonText
+                                }
+                            </button>
+                        }
+                    </section>
+                }
+            </div>
+        </FocusTrap>
+    </CascadingValue>
 }
 
 @code {
@@ -149,9 +160,12 @@
 
     public bool IsOpen => _triggeredShow;
     public bool IsShown => _shown;
+    public bool IsSubmitting => _isSubmitting;
 
     private bool _triggeredShow;
     private bool _shown;
+    private bool _isSubmitting;
+    private bool _hasOpenOverlay;
     private readonly string _titleId = $"devity-dialog-title-{Guid.NewGuid():N}";
     private ElementReference _body;
 
@@ -165,6 +179,7 @@
     {
         "devity-dialog-panel",
         FullWidth ? "devity-dialog-panel-full-width" : Large ? "devity-dialog-panel-large" : string.Empty,
+        _hasOpenOverlay ? "devity-dialog-panel-overlay-open" : string.Empty,
         Class
     }.Where(x => !string.IsNullOrWhiteSpace(x)));
 
@@ -204,7 +219,30 @@
 
     public async Task Submit()
     {
-        await OnSubmitAttempted.InvokeAsync();
+        if (_isSubmitting)
+            return;
+
+        _isSubmitting = true;
+        await InvokeAsync(StateHasChanged);
+        try
+        {
+            await OnSubmitAttempted.InvokeAsync();
+        }
+        finally
+        {
+            _isSubmitting = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    /// <summary>
+    /// Called by descendants (e.g. a <see cref="DevitySelect{TValue}"/>) that render their own
+    /// overlay/dropdown inside the dialog body, so the dialog can temporarily stop clipping it.
+    /// </summary>
+    public void NotifyOverlayOpen(bool isOpen)
+    {
+        _hasOpenOverlay = isOpen;
+        InvokeAsync(StateHasChanged);
     }
 
     private async Task CancelFromOverlay()

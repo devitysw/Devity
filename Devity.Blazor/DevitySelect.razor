@@ -68,6 +68,9 @@
     [Parameter]
     public EventCallback OnClosed { get; set; }
 
+    [CascadingParameter]
+    public DevityDialog? EnclosingDialog { get; set; }
+
     private bool _expand;
     private string? _showcasedText;
     private Guid _identifier = Guid.NewGuid();
@@ -127,14 +130,18 @@
         await CancelRunningDelay();
         _expand = state;
         if (_expand)
+        {
+            EnclosingDialog?.NotifyOverlayOpen(true);
             await OnOpen.InvokeAsync();
-        else 
+        }
+        else
         {
             _cts = new CancellationTokenSource();
             _delayTask = Task.Delay(550, _cts.Token);
             try
             {
                 await _delayTask;
+                EnclosingDialog?.NotifyOverlayOpen(false);
                 await OnClosed.InvokeAsync();
             }
             catch (TaskCanceledException)

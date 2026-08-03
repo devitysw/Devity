@@ -29,6 +29,11 @@
     @apply dv:max-w-full;
 }
 
+.devity-dialog-panel-overlay-open,
+.devity-dialog-panel-overlay-open .devity-dialog-body {
+    @apply dv:overflow-visible;
+}
+
 .devity-dialog-panel[data-active="True"] {
     background-color: rgb(255 255 255 / 100%);
     transform: translateY(0);
@@ -68,7 +73,12 @@
 
 .devity-dialog-cancel-button,
 .devity-dialog-submit-button {
-    @apply dv:cursor-pointer dv:appearance-none dv:rounded-md dv:border-0 dv:px-5 dv:py-2 dv:transition-all;
+    @apply dv:inline-flex dv:min-w-20 dv:cursor-pointer dv:appearance-none dv:items-center dv:justify-center dv:rounded-md dv:border-0 dv:px-5 dv:py-2 dv:transition-all;
+}
+
+.devity-dialog-cancel-button:disabled,
+.devity-dialog-submit-button:disabled {
+    @apply dv:cursor-not-allowed dv:opacity-60;
 }
 
 .devity-dialog-cancel-button {
@@ -93,4 +103,9 @@
 
 .devity-dialog-submit-button-danger:hover {
     @apply dv:bg-red-700;
+}
+
+.devity-dialog-spinner {
+    @apply dv:inline-block dv:size-4 dv:animate-spin dv:rounded-full dv:border-2 dv:border-white/40;
+    border-top-color: #fff;
 }

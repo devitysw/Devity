@@ -18,6 +18,11 @@ Welcome to your new app.
 
 <div class="mt-4">
 	<button type="button" class="btn btn-primary" @onclick="OpenDialog">Open dialog example</button>
+	<p class="mt-2 text-muted">
+		Two things to check in the dialog: (1) click the "Toast type to show" select &mdash;
+		its dropdown should render fully, not get clipped by the dialog edge. (2) click "Save"
+		&mdash; the footer should swap to a loading spinner for ~1.5s before the dialog closes.
+	</p>
 </div>
 
 <TestObjectDialog @ref="_dialog" OnSubmit="SaveDialog" OnDismissed="CancelDialog" />
