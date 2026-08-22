@@ -6,30 +6,46 @@ on:
       - main
 
 jobs:
-  publish-blazor:
-    uses: devitysw/Devity/.github/workflows/publish-package.yml@main
-    with:
-      PROJECT_NAME: 'Blazor'
-    secrets:
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+  compute-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - id: version
+        run: echo "version=$(date -u +'%Y.%-m.%-d.%H%M')" >> "$GITHUB_OUTPUT"
 
   publish-extensions:
+    needs: compute-version
     uses: devitysw/Devity/.github/workflows/publish-package.yml@main
     with:
       PROJECT_NAME: 'Extensions'
+      VERSION: ${{ needs.compute-version.outputs.version }}
+    secrets:
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+
+  publish-blazor:
+    needs: [compute-version, publish-extensions]
+    uses: devitysw/Devity/.github/workflows/publish-package.yml@main
+    with:
+      PROJECT_NAME: 'Blazor'
+      VERSION: ${{ needs.compute-version.outputs.version }}
     secrets:
       NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
   publish-mailing:
+    needs: [compute-version, publish-extensions]
     uses: devitysw/Devity/.github/workflows/publish-package.yml@main
     with:
       PROJECT_NAME: 'Mailing'
+      VERSION: ${{ needs.compute-version.outputs.version }}
     secrets:
       NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
 
   publish-payout:
+    needs: compute-version
     uses: devitysw/Devity/.github/workflows/publish-package.yml@main
     with:
       PROJECT_NAME: 'Payout'
+      VERSION: ${{ needs.compute-version.outputs.version }}
     secrets:
       NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}

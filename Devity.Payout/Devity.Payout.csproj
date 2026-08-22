@@ -7,8 +7,6 @@
 	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	<Description>Wrapper for the Payout API.</Description>
 	<PackageTags>extensions;string;class;object;property;helpers;devity</PackageTags>
-	<PackageVersion>$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm"))</PackageVersion>
-	<AssemblyVersion>$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm"))</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

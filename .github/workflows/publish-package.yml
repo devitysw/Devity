@@ -6,6 +6,10 @@ on:
       PROJECT_NAME:
         required: true
         type: string
+      VERSION:
+        required: false
+        type: string
+        default: ''
     secrets:
       NUGET_API_KEY:
         required: true
@@ -19,6 +23,10 @@ on:
           - Extensions
           - Mailing
           - Payout
+      VERSION:
+        required: false
+        type: string
+        description: 'Optional - pins the package version (e.g. to match a sibling package already published in this release, such as Devity.Extensions when publishing Devity.Mailing/Blazor standalone). Leave blank to auto-generate from the current date/time.'
 
 jobs:
   publish:
@@ -44,17 +52,27 @@ jobs:
       with:
         dotnet-version: 9.0.x
 
+    - name: Determine package version args
+      id: pkgver
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.VERSION }}" ]; then
+          echo "args=-p:PackageVersion=${{ inputs.VERSION }}" >> "$GITHUB_OUTPUT"
+        else
+          echo "args=" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Build and test
       # if: steps.check-changes.outputs.changes != '' || github.event_name == 'workflow_dispatch'
       working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
-      run: | 
-        dotnet build --configuration Release
+      run: |
+        dotnet build --configuration Release ${{ steps.pkgver.outputs.args }}
         dotnet test --configuration Release --no-build
-      
+
     - name: Package
       # if: steps.check-changes.outputs.changes != '' || github.event_name == 'workflow_dispatch'
       working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
-      run: dotnet pack --configuration Release --no-build
+      run: dotnet pack --configuration Release --no-build ${{ steps.pkgver.outputs.args }}
 
     - name: Publish
       # if: steps.check-changes.outputs.changes != '' || github.event_name == 'workflow_dispatch'

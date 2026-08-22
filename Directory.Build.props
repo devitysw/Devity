@@ -1,0 +1,20 @@
+<Project>
+
+  <PropertyGroup>
+    <!--
+      Single source of truth for every packable Devity.* project's version. CI computes one
+      timestamp per publish run and passes it to every project via -p:PackageVersion=..., so
+      packages that reference each other via ProjectReference (e.g. Devity.Mailing ->
+      Devity.Extensions) always bake in a dependency version that's actually being published in
+      that same run. Without this, each project independently evaluating DateTime.Now produced
+      slightly different timestamps across separate CI jobs, so a downstream package could require
+      a version of its dependency that was never published.
+
+      Local `dotnet build`/`dotnet pack` without the override still falls back to the current
+      timestamp, same as before.
+    -->
+    <PackageVersion Condition="'$(PackageVersion)' == ''">$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmm"))</PackageVersion>
+    <AssemblyVersion>$(PackageVersion)</AssemblyVersion>
+  </PropertyGroup>
+
+</Project>
