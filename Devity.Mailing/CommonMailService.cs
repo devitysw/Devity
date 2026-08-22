@@ -47,6 +47,33 @@ public abstract class CommonMailService
     protected Task SendEmailAsync(DevityEmail emailData, MailKitOptions mailKitOptions) =>
         SendEmailAsync(emailData, new EmailService(new MailKitProvider(mailKitOptions)));
 
+    /// <summary>
+    /// Triggers a multipart/alternative send (HTML + a plain-text fallback) using the mail
+    /// service configured at startup - for recipients/clients that don't render HTML.
+    /// </summary>
+    /// <param name="emailData">An e-mail in the data format. Its Template is used as the HTML body.</param>
+    /// <param name="plainTextMessage">The plain-text alternative body.</param>
+    protected Task SendMultipartEmailAsync(DevityEmail emailData, string plainTextMessage) =>
+        SendMultipartEmailAsync(emailData, plainTextMessage, _emailService);
+
+    /// <summary>
+    /// Triggers a multipart/alternative send through a different mail server/account than the one
+    /// configured at startup - e.g. a per-tenant SMTP account instead of the app's own.
+    /// </summary>
+    /// <param name="emailData">An e-mail in the data format. Its Template is used as the HTML body.</param>
+    /// <param name="plainTextMessage">The plain-text alternative body.</param>
+    /// <param name="mailKitOptions">The mail server/account to send through, in place of the configured one.</param>
+    protected Task SendMultipartEmailAsync(
+        DevityEmail emailData,
+        string plainTextMessage,
+        MailKitOptions mailKitOptions
+    ) =>
+        SendMultipartEmailAsync(
+            emailData,
+            plainTextMessage,
+            new EmailService(new MailKitProvider(mailKitOptions))
+        );
+
     private async Task SendEmailAsync(DevityEmail emailData, IEmailService emailService)
     {
         await emailService.SendAsync(
@@ -55,6 +82,21 @@ public abstract class CommonMailService
             emailData.Template.PopulateTemplate(),
             emailData.Attachments.ToArray(),
             true
+        );
+    }
+
+    private async Task SendMultipartEmailAsync(
+        DevityEmail emailData,
+        string plainTextMessage,
+        IEmailService emailService
+    )
+    {
+        await emailService.SendMultipartAsync(
+            emailData.EmailAddress,
+            _subjectFormat.Replace(TITLE_KEY, emailData.SubjectMessage),
+            emailData.Template.PopulateTemplate(),
+            plainTextMessage,
+            emailData.Attachments.ToArray()
         );
     }
 }

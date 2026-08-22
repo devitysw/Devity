@@ -88,6 +88,12 @@ Update this file whenever a public member is added, renamed, or removed in any p
 `Devity.Mailing/CommonMailService.cs`
 - `abstract class CommonMailService(IEmailService mailService, string subjectFormat)` — inherit
   this for an app's own mail service.
+- `SendEmailAsync(DevityEmail)` / `SendEmailAsync(DevityEmail, MailKitOptions)` — HTML-only send
+  (the latter through a per-call SMTP account instead of the one configured at startup).
+- `SendMultipartEmailAsync(DevityEmail, string plainTextMessage)` /
+  `SendMultipartEmailAsync(DevityEmail, string plainTextMessage, MailKitOptions)` — sends a
+  `multipart/alternative` message (HTML from `DevityEmail.Template` + the given plain-text body).
+  Requires `Devity.NETCore.MailKit` >= 2.3.0.
 
 `Devity.Mailing/DevityEmail.cs`
 - `DevityEmail(string emailAddress, string subjectMessage, DevityTemplate template)` —

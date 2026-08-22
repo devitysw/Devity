@@ -101,6 +101,28 @@ var email = new DevityEmail("user@example.com", "Invoice", template)
     .AddAttachment("/tmp/invoice.pdf");
 ```
 
+## Multipart (HTML + plain-text) emails
+
+`SendEmailAsync` sends HTML-only. For a `multipart/alternative` message with both an HTML and a
+plain-text body, call `SendMultipartEmailAsync` from your derived service instead - it still uses
+`DevityEmail.Template` for the HTML part, plus a separate plain-text string:
+
+```csharp
+public Task SendWelcomeEmailAsync(string emailAddress, string firstName)
+{
+    var template = new DevityTemplate("Templates/welcome.html")
+        .AddKey("-FIRSTNAME-", firstName);
+
+    var email = new DevityEmail(emailAddress, "Welcome", template);
+    var plainText = $"Welcome, {firstName}!";
+
+    return SendMultipartEmailAsync(email, plainText);
+}
+```
+
+An overload accepting a `MailKitOptions` (in place of the app's configured mail service) is
+available too, mirroring `SendEmailAsync`'s per-tenant-SMTP overload.
+
 ## Template usage
 
 Email bodies are rendered with `DevityTemplate.PopulateTemplate()`. See [`../Devity.Extensions/README.md`](../Devity.Extensions/README.md) for the full template API.
