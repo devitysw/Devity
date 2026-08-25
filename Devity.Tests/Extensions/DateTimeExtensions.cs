@@ -1,7 +1,38 @@
+using System.Globalization;
+
 namespace Devity.Tests.Extensions;
 
 public class DateTimeExtensionsTest
 {
+    [Test]
+    public void ToTimeAgoStringTest()
+    {
+        var originalCulture = CultureInfo.CurrentUICulture;
+        try
+        {
+            CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
+            Assert.That(DateTime.Now.AddSeconds(-30).ToTimeAgoString(), Is.EqualTo("just now"));
+            Assert.That(DateTime.Now.AddMinutes(-5).ToTimeAgoString(), Is.EqualTo("5 min ago"));
+            Assert.That(DateTime.Now.AddHours(-3).ToTimeAgoString(), Is.EqualTo("3 hr ago"));
+            Assert.That(DateTime.Now.AddDays(-1).ToTimeAgoString(), Is.EqualTo("1 day ago"));
+            Assert.That(DateTime.Now.AddDays(-4).ToTimeAgoString(), Is.EqualTo("4 days ago"));
+
+            // DateTime.Kind should decide whether "now" is DateTime.Now or DateTime.UtcNow.
+            Assert.That(DateTime.UtcNow.AddMinutes(-5).ToTimeAgoString(), Is.EqualTo("5 min ago"));
+
+            CultureInfo.CurrentUICulture = new CultureInfo("sk");
+            Assert.That(DateTime.Now.AddSeconds(-30).ToTimeAgoString(), Is.EqualTo("práve teraz"));
+            Assert.That(DateTime.Now.AddMinutes(-5).ToTimeAgoString(), Is.EqualTo("pred 5 min"));
+            Assert.That(DateTime.Now.AddHours(-3).ToTimeAgoString(), Is.EqualTo("pred 3 hod"));
+            Assert.That(DateTime.Now.AddDays(-1).ToTimeAgoString(), Is.EqualTo("pred 1 dňom"));
+            Assert.That(DateTime.Now.AddDays(-4).ToTimeAgoString(), Is.EqualTo("pred 4 dňami"));
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = originalCulture;
+        }
+    }
+
     [Test]
     public void ToHtmlDateStringTest()
     {

@@ -1,10 +1,17 @@
-﻿namespace Devity.Extensions
+﻿using System.Resources;
+
+namespace Devity.Extensions
 {
     public static class DateTimeExtensions
     {
         private const int SECONDS_IN_DAY = 24 * 60 * 60;
         private const int SECONDS_IN_MINUTE = 60;
         private const int SECONDS_IN_HOUR = 60 * SECONDS_IN_MINUTE;
+
+        private static readonly ResourceManager TimeAgoResources = new(
+            "Devity.Extensions.Resources.TimeAgo",
+            typeof(DateTimeExtensions).Assembly
+        );
 
         /// <summary>
         /// Will transform the DateTime date value to a string that can be used in HTML for setting values (also min, max, etc.).
@@ -29,6 +36,37 @@
         /// </summary>
         public static string ToReadableStringWithTime(this DateTime dateTime) =>
             dateTime.ToString("d.M.yyyy HH:mm");
+
+        /// <summary>
+        /// Will transform the DateTime value into a relative "X ago" string (e.g. "5 min ago"),
+        /// localized for the calling thread's current UI culture via Resources/TimeAgo.resx
+        /// (falls back to English for any culture without a translation - currently Slovak is the
+        /// only one provided). Compares against DateTime.Now or DateTime.UtcNow depending on
+        /// dateTime's Kind, so callers do not need to convert first.
+        /// </summary>
+        public static string ToTimeAgoString(this DateTime dateTime)
+        {
+            var now = dateTime.Kind == DateTimeKind.Utc ? DateTime.UtcNow : DateTime.Now;
+            var span = now - dateTime;
+
+            return span switch
+            {
+                { TotalSeconds: < 60 } => TimeAgoResources.GetString("JustNow")!,
+                { TotalMinutes: < 60 } => string.Format(
+                    TimeAgoResources.GetString("MinutesAgo")!,
+                    (int)span.TotalMinutes
+                ),
+                { TotalHours: < 24 } => string.Format(
+                    TimeAgoResources.GetString("HoursAgo")!,
+                    (int)span.TotalHours
+                ),
+                _ when (int)span.TotalDays == 1 => string.Format(
+                    TimeAgoResources.GetString("DayAgo")!,
+                    1
+                ),
+                _ => string.Format(TimeAgoResources.GetString("DaysAgo")!, (int)span.TotalDays),
+            };
+        }
 
         /// <summary>
         /// Will return the remaining TimeSpan until the end of the current day.
