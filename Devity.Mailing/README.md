@@ -123,6 +123,19 @@ public Task SendWelcomeEmailAsync(string emailAddress, string firstName)
 An overload accepting a `MailKitOptions` (in place of the app's configured mail service) is
 available too, mirroring `SendEmailAsync`'s per-tenant-SMTP overload.
 
+Both overloads take an optional `extraHeaders` (`IDictionary<string, string>`) for setting raw
+message headers - e.g. RFC 8058 one-click unsubscribe:
+
+```csharp
+var headers = new Dictionary<string, string>
+{
+    ["List-Unsubscribe"] = "<https://example.com/unsubscribe/abc123>",
+    ["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
+};
+
+return SendMultipartEmailAsync(email, plainText, extraHeaders: headers);
+```
+
 ## Template usage
 
 Email bodies are rendered with `DevityTemplate.PopulateTemplate()`. See [`../Devity.Extensions/README.md`](../Devity.Extensions/README.md) for the full template API.

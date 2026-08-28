@@ -53,8 +53,9 @@ public abstract class CommonMailService
     /// </summary>
     /// <param name="emailData">An e-mail in the data format. Its Template is used as the HTML body.</param>
     /// <param name="plainTextMessage">The plain-text alternative body.</param>
-    protected Task SendMultipartEmailAsync(DevityEmail emailData, string plainTextMessage) =>
-        SendMultipartEmailAsync(emailData, plainTextMessage, _emailService);
+    /// <param name="extraHeaders">Additional raw message headers to set (e.g. List-Unsubscribe), keyed by header name.</param>
+    protected Task SendMultipartEmailAsync(DevityEmail emailData, string plainTextMessage, IDictionary<string, string>? extraHeaders = null) =>
+        SendMultipartEmailAsync(emailData, plainTextMessage, _emailService, extraHeaders);
 
     /// <summary>
     /// Triggers a multipart/alternative send through a different mail server/account than the one
@@ -63,15 +64,18 @@ public abstract class CommonMailService
     /// <param name="emailData">An e-mail in the data format. Its Template is used as the HTML body.</param>
     /// <param name="plainTextMessage">The plain-text alternative body.</param>
     /// <param name="mailKitOptions">The mail server/account to send through, in place of the configured one.</param>
+    /// <param name="extraHeaders">Additional raw message headers to set (e.g. List-Unsubscribe), keyed by header name.</param>
     protected Task SendMultipartEmailAsync(
         DevityEmail emailData,
         string plainTextMessage,
-        MailKitOptions mailKitOptions
+        MailKitOptions mailKitOptions,
+        IDictionary<string, string>? extraHeaders = null
     ) =>
         SendMultipartEmailAsync(
             emailData,
             plainTextMessage,
-            new EmailService(new MailKitProvider(mailKitOptions))
+            new EmailService(new MailKitProvider(mailKitOptions)),
+            extraHeaders
         );
 
     private async Task SendEmailAsync(DevityEmail emailData, IEmailService emailService)
@@ -88,7 +92,8 @@ public abstract class CommonMailService
     private async Task SendMultipartEmailAsync(
         DevityEmail emailData,
         string plainTextMessage,
-        IEmailService emailService
+        IEmailService emailService,
+        IDictionary<string, string>? extraHeaders
     )
     {
         await emailService.SendMultipartAsync(
@@ -96,7 +101,8 @@ public abstract class CommonMailService
             _subjectFormat.Replace(TITLE_KEY, emailData.SubjectMessage),
             emailData.Template.PopulateTemplate(),
             plainTextMessage,
-            emailData.Attachments.ToArray()
+            emailData.Attachments.ToArray(),
+            extraHeaders: extraHeaders
         );
     }
 }

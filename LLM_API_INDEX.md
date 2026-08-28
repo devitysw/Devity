@@ -90,10 +90,11 @@ Update this file whenever a public member is added, renamed, or removed in any p
   this for an app's own mail service.
 - `SendEmailAsync(DevityEmail)` / `SendEmailAsync(DevityEmail, MailKitOptions)` — HTML-only send
   (the latter through a per-call SMTP account instead of the one configured at startup).
-- `SendMultipartEmailAsync(DevityEmail, string plainTextMessage)` /
-  `SendMultipartEmailAsync(DevityEmail, string plainTextMessage, MailKitOptions)` — sends a
-  `multipart/alternative` message (HTML from `DevityEmail.Template` + the given plain-text body).
-  Requires `Devity.NETCore.MailKit` >= 2.3.0.
+- `SendMultipartEmailAsync(DevityEmail, string plainTextMessage, IDictionary<string,string>? extraHeaders = null)` /
+  `SendMultipartEmailAsync(DevityEmail, string plainTextMessage, MailKitOptions, IDictionary<string,string>? extraHeaders = null)` —
+  sends a `multipart/alternative` message (HTML from `DevityEmail.Template` + the given plain-text
+  body). `extraHeaders` sets raw message headers (e.g. `List-Unsubscribe`). Requires
+  `Devity.NETCore.MailKit` >= 2.3.0 (>= 2.4.0 for `extraHeaders`).
 
 `Devity.Mailing/DevityEmail.cs`
 - `DevityEmail(string emailAddress, string subjectMessage, DevityTemplate template)` —
