@@ -39,13 +39,21 @@ public abstract class CommonMailService
     /// <summary>
     /// Triggers an e-mail send through a different mail server/account than the one configured at
     /// startup - e.g. a per-tenant SMTP account instead of the app's own. Connects and authenticates
-    /// on every call; callers that just want to validate credentials can call this with a minimal
-    /// DevityEmail and treat a thrown exception as "invalid".
+    /// on every call (the provider it builds is discarded after this one send); callers that just
+    /// want to validate credentials can call this with a minimal DevityEmail and treat a thrown
+    /// exception as "invalid". Callers sending more than one e-mail through the same account back to
+    /// back should build their own <see cref="IEmailService"/> once (<c>new EmailService(new
+    /// MailKitProvider(mailKitOptions))</c>) and reuse it via the <see cref="SendEmailAsync(DevityEmail, IEmailService)"/>
+    /// overload instead - a fresh connect+authenticate per e-mail looks like a compromised-account
+    /// login pattern to some mailbox providers' abuse detection, regardless of how the sends are paced.
     /// </summary>
     /// <param name="emailData">An e-mail in the data format.</param>
     /// <param name="mailKitOptions">The mail server/account to send through, in place of the configured one.</param>
-    protected Task SendEmailAsync(DevityEmail emailData, MailKitOptions mailKitOptions) =>
-        SendEmailAsync(emailData, new EmailService(new MailKitProvider(mailKitOptions)));
+    protected async Task SendEmailAsync(DevityEmail emailData, MailKitOptions mailKitOptions)
+    {
+        using var provider = new MailKitProvider(mailKitOptions);
+        await SendEmailAsync(emailData, new EmailService(provider));
+    }
 
     /// <summary>
     /// Triggers a multipart/alternative send (HTML + a plain-text fallback) using the mail
@@ -59,24 +67,49 @@ public abstract class CommonMailService
 
     /// <summary>
     /// Triggers a multipart/alternative send through a different mail server/account than the one
-    /// configured at startup - e.g. a per-tenant SMTP account instead of the app's own.
+    /// configured at startup - e.g. a per-tenant SMTP account instead of the app's own. Connects and
+    /// authenticates on every call (the provider it builds is discarded after this one send). Callers
+    /// sending a batch through the same account back to back should build their own
+    /// <see cref="IEmailService"/> once and reuse it via the
+    /// <see cref="SendMultipartEmailAsync(DevityEmail, string, IEmailService, IDictionary{string, string}?)"/>
+    /// overload instead - see that overload's remarks.
     /// </summary>
     /// <param name="emailData">An e-mail in the data format. Its Template is used as the HTML body.</param>
     /// <param name="plainTextMessage">The plain-text alternative body.</param>
     /// <param name="mailKitOptions">The mail server/account to send through, in place of the configured one.</param>
     /// <param name="extraHeaders">Additional raw message headers to set (e.g. List-Unsubscribe), keyed by header name.</param>
-    protected Task SendMultipartEmailAsync(
+    protected async Task SendMultipartEmailAsync(
         DevityEmail emailData,
         string plainTextMessage,
         MailKitOptions mailKitOptions,
         IDictionary<string, string>? extraHeaders = null
-    ) =>
-        SendMultipartEmailAsync(
-            emailData,
-            plainTextMessage,
-            new EmailService(new MailKitProvider(mailKitOptions)),
-            extraHeaders
-        );
+    )
+    {
+        using var provider = new MailKitProvider(mailKitOptions);
+        await SendMultipartEmailAsync(emailData, plainTextMessage, new EmailService(provider), extraHeaders);
+    }
+
+    /// <summary>
+    /// Triggers a multipart/alternative send through an already-built <see cref="IEmailService"/>
+    /// (e.g. <c>new EmailService(new MailKitProvider(mailKitOptions))</c>) instead of one built fresh
+    /// for this single call. Build that <see cref="IEmailService"/> once per SMTP account and reuse it
+    /// across a batch of sends through the same account - MailKitProvider keeps its underlying SMTP
+    /// connection open and reuses it (reconnecting only if it actually drops) rather than
+    /// connecting/authenticating separately for every e-mail, since a mailbox seeing many independent
+    /// automated logins in a short span can get flagged/locked by the provider's own account-security
+    /// system, distinct from and in addition to spam/content filtering. Dispose the provider (it
+    /// implements <see cref="IDisposable"/>) once the batch is done to close the connection cleanly.
+    /// </summary>
+    /// <param name="emailData">An e-mail in the data format. Its Template is used as the HTML body.</param>
+    /// <param name="plainTextMessage">The plain-text alternative body.</param>
+    /// <param name="emailService">An <see cref="IEmailService"/> built once and reused across the batch.</param>
+    /// <param name="extraHeaders">Additional raw message headers to set (e.g. List-Unsubscribe), keyed by header name.</param>
+    protected Task SendMultipartEmailAsync(
+        DevityEmail emailData,
+        string plainTextMessage,
+        IEmailService emailService,
+        IDictionary<string, string>? extraHeaders = null
+    ) => SendMultipartEmailAsyncCore(emailData, plainTextMessage, emailService, extraHeaders);
 
     private async Task SendEmailAsync(DevityEmail emailData, IEmailService emailService)
     {
@@ -89,7 +122,7 @@ public abstract class CommonMailService
         );
     }
 
-    private async Task SendMultipartEmailAsync(
+    private async Task SendMultipartEmailAsyncCore(
         DevityEmail emailData,
         string plainTextMessage,
         IEmailService emailService,
