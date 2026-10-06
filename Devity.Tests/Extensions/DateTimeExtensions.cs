@@ -34,6 +34,44 @@ public class DateTimeExtensionsTest
     }
 
     [Test]
+    public void ToTimeAgoStringWithNowTest()
+    {
+        var originalCulture = CultureInfo.CurrentUICulture;
+        try
+        {
+            CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
+
+            // Not the system clock: a made-up present, so the result never depends on when the test runs.
+            var now = new DateTime(2026, 10, 7, 14, 0, 0);
+
+            Assert.That(now.AddSeconds(-59).ToTimeAgoString(now), Is.EqualTo("just now"));
+            Assert.That(now.AddSeconds(-60).ToTimeAgoString(now), Is.EqualTo("1 min ago"));
+            Assert.That(now.AddMinutes(-59).ToTimeAgoString(now), Is.EqualTo("59 min ago"));
+            Assert.That(now.AddMinutes(-60).ToTimeAgoString(now), Is.EqualTo("1 hr ago"));
+            Assert.That(now.AddHours(-23).ToTimeAgoString(now), Is.EqualTo("23 hr ago"));
+            Assert.That(now.AddHours(-24).ToTimeAgoString(now), Is.EqualTo("1 day ago"));
+            Assert.That(now.AddHours(-47).ToTimeAgoString(now), Is.EqualTo("1 day ago"));
+            Assert.That(now.AddHours(-48).ToTimeAgoString(now), Is.EqualTo("2 days ago"));
+            Assert.That(now.AddDays(-400).ToTimeAgoString(now), Is.EqualTo("400 days ago"));
+
+            // Something that has not happened yet, as far as "now" knows, is not "ago".
+            Assert.That(now.AddMinutes(5).ToTimeAgoString(now), Is.EqualTo("just now"));
+
+            // The kind of the values is left alone: it is the caller's job to give two in the same zone.
+            var utcNow = new DateTime(2026, 10, 7, 14, 0, 0, DateTimeKind.Utc);
+            Assert.That(utcNow.AddMinutes(-5).ToTimeAgoString(utcNow), Is.EqualTo("5 min ago"));
+
+            CultureInfo.CurrentUICulture = new CultureInfo("sk");
+            Assert.That(now.AddMinutes(-5).ToTimeAgoString(now), Is.EqualTo("pred 5 min"));
+            Assert.That(now.AddDays(-4).ToTimeAgoString(now), Is.EqualTo("pred 4 dňami"));
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = originalCulture;
+        }
+    }
+
+    [Test]
     public void ToHtmlDateStringTest()
     {
         Assert.That(new DateTime(2001, 12, 20).ToHtmlDateString(), Is.EqualTo("2001-12-20"));

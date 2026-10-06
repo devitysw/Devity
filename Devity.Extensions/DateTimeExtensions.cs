@@ -44,9 +44,22 @@ namespace Devity.Extensions
         /// only one provided). Compares against DateTime.Now or DateTime.UtcNow depending on
         /// dateTime's Kind, so callers do not need to convert first.
         /// </summary>
-        public static string ToTimeAgoString(this DateTime dateTime)
+        public static string ToTimeAgoString(this DateTime dateTime) =>
+            dateTime.ToTimeAgoString(
+                dateTime.Kind == DateTimeKind.Utc ? DateTime.UtcNow : DateTime.Now
+            );
+
+        /// <summary>
+        /// Same as <see cref="ToTimeAgoString(DateTime)"/>, but measured against the supplied
+        /// <paramref name="now"/> instead of the system clock. Use this when the caller has a clock
+        /// of its own (a <see cref="TimeProvider"/>, a clock that is faked in tests) so the result
+        /// follows that clock. No conversion is done: both values must be in the same time zone
+        /// (both local or both UTC). A <paramref name="dateTime"/> later than <paramref name="now"/> reads as "just now".
+        /// </summary>
+        /// <param name="dateTime">The moment that something happened.</param>
+        /// <param name="now">What should count as the present.</param>
+        public static string ToTimeAgoString(this DateTime dateTime, DateTime now)
         {
-            var now = dateTime.Kind == DateTimeKind.Utc ? DateTime.UtcNow : DateTime.Now;
             var span = now - dateTime;
 
             return span switch
