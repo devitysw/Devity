@@ -5,6 +5,12 @@ on:
     branches:
       - main
 
+# Publishing uses NuGet trusted publishing: each job gets a GitHub OIDC token and swaps it for a one-hour API key,
+# so no long-lived key is stored. The reusable workflow can only request the token if the caller allows it here.
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   compute-version:
     runs-on: ubuntu-latest
@@ -21,7 +27,7 @@ jobs:
       PROJECT_NAME: 'Extensions'
       VERSION: ${{ needs.compute-version.outputs.version }}
     secrets:
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      NUGET_USER: ${{ secrets.NUGET_USER }}
 
   publish-blazor:
     needs: [compute-version, publish-extensions]
@@ -30,7 +36,7 @@ jobs:
       PROJECT_NAME: 'Blazor'
       VERSION: ${{ needs.compute-version.outputs.version }}
     secrets:
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      NUGET_USER: ${{ secrets.NUGET_USER }}
 
   publish-mailing:
     needs: [compute-version, publish-extensions]
@@ -39,7 +45,7 @@ jobs:
       PROJECT_NAME: 'Mailing'
       VERSION: ${{ needs.compute-version.outputs.version }}
     secrets:
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      NUGET_USER: ${{ secrets.NUGET_USER }}
 
   publish-payout:
     needs: compute-version
@@ -48,4 +54,4 @@ jobs:
       PROJECT_NAME: 'Payout'
       VERSION: ${{ needs.compute-version.outputs.version }}
     secrets:
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      NUGET_USER: ${{ secrets.NUGET_USER }}

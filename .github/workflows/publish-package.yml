@@ -11,7 +11,7 @@ on:
         type: string
         default: ''
     secrets:
-      NUGET_API_KEY:
+      NUGET_USER:
         required: true
   workflow_dispatch:
     inputs:
@@ -31,6 +31,9 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # lets NuGet/login swap the GitHub OIDC token for a temporary nuget.org API key
 
     steps:
     - name: Checkout code
@@ -74,10 +77,17 @@ jobs:
       working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
       run: dotnet pack --configuration Release --no-build ${{ steps.pkgver.outputs.args }}
 
+    # Trusted publishing: the key it returns lasts one hour, so get it right before pushing.
+    - name: NuGet login
+      id: nuget-login
+      uses: NuGet/login@v1
+      with:
+        user: ${{ secrets.NUGET_USER }}  # nuget.org profile name, not the email address
+
     - name: Publish
       # if: steps.check-changes.outputs.changes != '' || github.event_name == 'workflow_dispatch'
       working-directory: ./Devity.${{ inputs.PROJECT_NAME }}
       run: |
         cd bin
         ls
-        dotnet nuget push */*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        dotnet nuget push */*.nupkg --api-key ${{ steps.nuget-login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
