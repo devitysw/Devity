@@ -350,6 +350,54 @@ Available types:
 - `Toasts.ToastType.Warning`
 - `Toasts.ToastType.Error`
 
+`RunToast` can be called from any thread, for example from events raised by another user's circuit.
+
+The built-in look renders `Toast.Text` as HTML, so escape anything that comes from users before passing it in.
+
+#### Custom look and placement
+
+To match your app's design, give `Toasts` a `ToastTemplate`. The component still queues, times, dismisses and animates the toasts; the template only decides how each one looks. `ContainerClass` replaces the default fixed bottom-right stack, for example with `contents` to let the toasts flow into a container of your own:
+
+```razor
+<div class="fixed top-20 right-4 flex w-80 flex-col gap-2">
+    <Toasts @ref="_toasts" ContainerClass="contents">
+        <ToastTemplate>
+            <div class="my-toast">
+                @context.Toast.Text
+                <button type="button" @onclick="context.Dismiss">Close</button>
+            </div>
+        </ToastTemplate>
+    </Toasts>
+</div>
+```
+
+The template gets a `Toasts.ToastContext` with:
+
+- `Toast`: the toast being shown
+- `State`: `Entering` (just added), `Shown`, or `Leaving` (hidden, removed after `LeaveDurationMilliseconds`)
+- `Dismiss`: hides the toast now
+
+Text written as `@context.Toast.Text` is shown as plain text, so it is safe for user input.
+
+#### Motion
+
+Toasts slide in from the right and slide back out when they hide, with or without a template. Each toast's element has the `devity-toast` class and a `data-state` attribute (`Entering`, `Shown`, `Leaving`). With a template, `Toasts` wraps every toast in that element. To slide from somewhere else, override where a hidden toast sits:
+
+```css
+.devity-toast {
+    --devity-toast-hidden: translateY(1rem) scale(0.95);
+}
+```
+
+With `prefers-reduced-motion`, toasts don't slide and just fade out. To animate toasts yourself, set `AnimateTemplate="false"`: the template is then rendered without the wrapper, and `context.State` tells you when to play your own animations.
+
+Parameters:
+
+- `ToastTemplate`: renders each toast in place of the built-in look
+- `ContainerClass`: classes for the element holding the toasts, replacing the default fixed bottom-right stack
+- `AnimateTemplate`: wraps template toasts in the built-in motion, defaults to `true`
+- `LeaveDurationMilliseconds`: how long the slide in and out takes; a hidden toast stays rendered this long. Defaults to `500`
+
 ## Local stylesheet build
 
 When developing this package locally, rebuild the generated stylesheet after changing `app.css`:

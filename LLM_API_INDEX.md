@@ -29,7 +29,12 @@ Update this file whenever a public member is added, renamed, or removed in any p
   `For` (`Expression<Func<TValue>>`), e.g. for labels driven by data annotations.
 - **`Toasts`** (`Devity.Blazor/Toasts.razor`) — toast notification host component. Nested
   `record Toast(string Text, ToastType Type = ToastType.Info, int DurationMilliseconds = 5000)`.
-  Instance methods: `RunToast(Toast)`, `KillToast(Toast)`, `Hide(Toast)`.
+  Instance methods: `RunToast(Toast)`, `KillToast(Toast)`, `Hide(Toast)` (safe to call from any thread).
+  Parameters: `ToastTemplate` (`RenderFragment<ToastContext>`, custom look; context is
+  `record ToastContext(Toast Toast, ToastState State, Action Dismiss)` with `ToastState` `Entering`/`Shown`/`Leaving`),
+  `ContainerClass` (replaces the default fixed bottom-right stack), `AnimateTemplate` (default true: wraps template
+  toasts in the built-in `.devity-toast` slide; `--devity-toast-hidden` changes where they slide from),
+  `LeaveDurationMilliseconds` (slide duration, default 500).
 
 ## Devity.Extensions — shared C# helpers/extension methods
 

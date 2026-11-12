@@ -1,7 +1,23 @@
-﻿<div class="dv:fixed dv:right-5 dv:bottom-5 dv:z-50 dv:flex dv:flex-col dv:items-end dv:gap-3 dv:transition-all">
+﻿<div class="@(ContainerClass ?? "dv:fixed dv:right-5 dv:bottom-5 dv:z-50 dv:flex dv:flex-col dv:items-end dv:gap-3 dv:transition-all")">
 	@foreach (var toast in _allToasts)
 	{
-		<div @key=toast data-active="@(_showing.Contains(toast).ToString())" class="@(GetOutlineColor(toast.Type)) @GetBgColor(toast.Type) dv:flex dv:flex-row dv:items-center dv:justify-between dv:space-x-8 dv:overflow-hidden dv:rounded-md dv:px-4 dv:py-3 dv:shadow dv:outline dv:transition-all dv:duration-500 dv:ease-in-out dv:select-none data-[active=False]:translate-x-[500%]">
+		if (ToastTemplate is not null)
+		{
+			if (AnimateTemplate)
+			{
+				<div @key=toast class="devity-toast" data-state="@StateOf(toast)" style="@MotionStyle">
+					@ToastTemplate(ContextFor(toast))
+				</div>
+			}
+			else
+			{
+				<ToastSlot @key=toast Template="ToastTemplate" Value="ContextFor(toast)" />
+			}
+
+			continue;
+		}
+
+		<div @key=toast data-active="@(_showing.Contains(toast).ToString())" data-state="@StateOf(toast)" style="@MotionStyle" class="@(GetOutlineColor(toast.Type)) @GetBgColor(toast.Type) devity-toast dv:flex dv:flex-row dv:items-center dv:justify-between dv:space-x-8 dv:overflow-hidden dv:rounded-md dv:px-4 dv:py-3 dv:shadow dv:outline dv:select-none">
 			<div class="dv:flex dv:flex-row dv:items-center dv:space-x-4">
 				<span class='@(GetTextColor(toast.Type))'>
 					<svg width="32" height="32" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -39,7 +55,40 @@
 @code {
 	private List<Toast> _cancelledToasts = new();
 	private List<Toast> _showing = new();
+	private List<Toast> _leaving = new();
 	private List<Toast> _allToasts = new();
+
+	/// <summary>
+	/// Classes for the element that holds the toasts. Replaces the default fixed bottom-right stack, for example
+	/// <c>contents</c> to let the toasts flow into a container of your own.
+	/// </summary>
+	[Parameter]
+	public string? ContainerClass { get; set; }
+
+	/// <summary>
+	/// Renders each toast in place of the built-in look. The component still handles timing, stacking, dismissing
+	/// and (see <see cref="AnimateTemplate"/>) the slide in and out.
+	/// </summary>
+	[Parameter]
+	public RenderFragment<ToastContext>? ToastTemplate { get; set; }
+
+	/// <summary>
+	/// Wraps each <see cref="ToastTemplate"/> toast in an element with the built-in slide in and out. Turn it off to
+	/// animate toasts yourself with <see cref="ToastContext.State"/>.
+	/// </summary>
+	[Parameter]
+	public bool AnimateTemplate { get; set; } = true;
+
+	/// <summary>How long the slide in and out takes; a hidden toast stays rendered this long.</summary>
+	[Parameter]
+	public int LeaveDurationMilliseconds { get; set; } = 500;
+
+	private string MotionStyle => $"--devity-toast-duration: {LeaveDurationMilliseconds}ms";
+
+	private ToastState StateOf(Toast toast) =>
+		_leaving.Contains(toast) ? ToastState.Leaving : _showing.Contains(toast) ? ToastState.Shown : ToastState.Entering;
+
+	private ToastContext ContextFor(Toast toast) => new(toast, StateOf(toast), () => KillToast(toast));
 
 	// These are not a single function so that Tailwind can detect this properly for tree-shaking
 	private string GetOutlineColor(ToastType type) => type switch
@@ -66,20 +115,33 @@
 		_ => "dv:bg-sky-50"
 	};
 
+	// The lists are only touched on the renderer's thread, so toasts can be raised from any thread (for example from
+	// events fired by another user's circuit).
+	private Task Update(Action change) => InvokeAsync(() =>
+	{
+		change();
+		StateHasChanged();
+	});
+
+	private async Task<bool> IsCancelled(Toast toast)
+	{
+		var cancelled = false;
+		await InvokeAsync(() => cancelled = _cancelledToasts.Contains(toast));
+		return cancelled;
+	}
+
 	public async void RunToast(Toast toast)
 	{
-		_allToasts.Add(toast);
-		await InvokeAsync(StateHasChanged);
+		await Update(() => _allToasts.Add(toast));
 		await Task.Delay(5);
 
-		if (_cancelledToasts.Contains(toast))
+		if (await IsCancelled(toast))
 			return;
 
-		_showing.Add(toast);
-		await InvokeAsync(StateHasChanged);
+		await Update(() => _showing.Add(toast));
 		await Task.Delay(toast.DurationMilliseconds);
 
-		if (_cancelledToasts.Contains(toast))
+		if (await IsCancelled(toast))
 			return;
 
 		await Hide(toast);
@@ -87,25 +149,33 @@
 
 	public async void KillToast(Toast toast)
 	{
-		_cancelledToasts.Add(toast);
+		var showing = false;
+		await InvokeAsync(() =>
+		{
+			_cancelledToasts.Add(toast);
+			showing = _showing.Contains(toast);
+		});
 
-		if (_showing.Contains(toast))
+		if (showing)
 			await Hide(toast);
 		else
-		{
-			_allToasts.Remove(toast);
-			await InvokeAsync(StateHasChanged);
-		}
+			await Update(() => _allToasts.Remove(toast));
 	}
 
 	public async Task Hide(Toast toast)
 	{
-		_showing.Remove(toast);
-		await InvokeAsync(StateHasChanged);
-		await Task.Delay(500);
-		_allToasts.Remove(toast);
-		await InvokeAsync(StateHasChanged);
-		_cancelledToasts.Remove(toast);
+		await Update(() =>
+		{
+			_showing.Remove(toast);
+			_leaving.Add(toast);
+		});
+		await Task.Delay(LeaveDurationMilliseconds);
+		await Update(() =>
+		{
+			_allToasts.Remove(toast);
+			_leaving.Remove(toast);
+			_cancelledToasts.Remove(toast);
+		});
 	}
 
 	public enum ToastType
@@ -120,4 +190,17 @@
 	{
 		public Guid Id { get; } = Guid.NewGuid();
 	}
+
+	public enum ToastState
+	{
+		/// <summary>Just added, about to be shown. Lets a template start from its hidden look.</summary>
+		Entering,
+		Shown,
+		/// <summary>On its way out; removed after <see cref="LeaveDurationMilliseconds"/>.</summary>
+		Leaving
+	}
+
+	/// <summary>What a <see cref="ToastTemplate"/> gets for each toast.</summary>
+	/// <param name="Dismiss">Hides the toast now, like the built-in close button.</param>
+	public record ToastContext(Toast Toast, ToastState State, Action Dismiss);
 }

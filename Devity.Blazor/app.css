@@ -109,3 +109,44 @@
     @apply dv:inline-block dv:size-4 dv:animate-spin dv:rounded-full dv:border-2 dv:border-white/40;
     border-top-color: #fff;
 }
+
+/*
+  Toast motion: slides in from the side and back out. Keyframes rather than a transition, so the slide-in plays even
+  when the browser never paints the brief Entering state. Toasts.razor sets --devity-toast-duration from
+  LeaveDurationMilliseconds; --devity-toast-hidden can be overridden to change where toasts come from.
+*/
+.devity-toast {
+    animation: devity-toast-in var(--devity-toast-duration, 500ms) ease-out both;
+}
+
+.devity-toast[data-state="Leaving"] {
+    animation: devity-toast-out var(--devity-toast-duration, 500ms) ease-in both;
+}
+
+@keyframes devity-toast-in {
+    from {
+        transform: var(--devity-toast-hidden, translateX(500%));
+    }
+}
+
+@keyframes devity-toast-out {
+    to {
+        transform: var(--devity-toast-hidden, translateX(500%));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .devity-toast {
+        animation: none;
+    }
+
+    .devity-toast[data-state="Leaving"] {
+        animation: devity-toast-fade-out var(--devity-toast-duration, 500ms) ease-in both;
+    }
+
+    @keyframes devity-toast-fade-out {
+        to {
+            opacity: 0;
+        }
+    }
+}
